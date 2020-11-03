@@ -1,5 +1,7 @@
 # HistopathApp
-This repository is currently under development!
+## This repository is currently under development!
+
+![Screenshot](resources/histopathapp.png)
 
 HistopathApp is a simple application which allows to visualize histopathology images and apply an AI algorithm to them in order to detect the tissue containing cancer cells. 
 For the moment it only support images in conventional formats, such as JPEG, and PNG. However it is aimed to add support to formats used in histhopathology images which contain the same image at different resolutions levels.
