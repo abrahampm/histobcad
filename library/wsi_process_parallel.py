@@ -13,7 +13,6 @@ from pandas import DataFrame
 from SimpleITK import GetImageFromArray, VectorIndexSelectionCast
 from radiomics.featureextractor import RadiomicsFeatureExtractor
 
-
 NUM_OF_WORKERS = cpu_count()
 if NUM_OF_WORKERS < 1:
     NUM_OF_WORKERS = 1
@@ -222,8 +221,6 @@ def run(d):
     msk = GetImageFromArray(msk_arr)
     msk.CopyInformation(im)
 
-    print(im)
-
     # Extract red channel image's features
     rc = VectorIndexSelectionCast(im, 0)
     rcf = r_chan_extractor.execute(rc, msk, label=1)
@@ -235,10 +232,6 @@ def run(d):
     # Extract blue channel image's features
     bc = VectorIndexSelectionCast(im, 2)
     bcf = b_chan_extractor.execute(bc, msk, label=1)
-
-    print(rcf)
-    print(gcf)
-    print(rcf)
 
     features = array(list(rcf.values()) + list(gcf.values()) + list(bcf.values()))
     features = features.reshape(1, len(features))
