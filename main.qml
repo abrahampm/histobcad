@@ -8,7 +8,7 @@ import QtQuick.Dialogs 1.0
 
 ApplicationWindow {
     id: applicationWindow
-    title: qsTr("Pathology App")
+    title: qsTr("HistopathApp")
     visible: true
     width: 1024
     height: 576
