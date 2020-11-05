@@ -11,7 +11,7 @@ The application is developed using Python, the Qt Framework and the PySide2 wrap
 First, you should have installed a Python 3 interpreter in your local machine.
 The clone the repository using the `git clone` command.
 Navigate to the project folder
-Create a Python Virtual Environment using `python3 -m venv ./venv/` which will create a new virtual environment placed in venv folder inside the project root.
+Create a Python Virtual Environment using `python3 -m venv ./venv/ && source ./env/bin/activate` which will create and activate a new virtual environment placed in venv folder inside the project root.
 Finally, install the project requirements using `pip install -r requirements.txt`
 
 To bundle the application using PyInstaller execute `pyinstaller main.spec`
