@@ -10,7 +10,7 @@ from PySide2.QtGui import QGuiApplication
 from PySide2.QtQml import QQmlApplicationEngine
 
 from multiprocessing import Process, Queue
-from library.wsi_process_parallel import predict
+from library.parallel_worker import predict
 
 
 class Worker(QObject):
