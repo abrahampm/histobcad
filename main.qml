@@ -15,28 +15,28 @@ ApplicationWindow {
 
     menuBar: MenuBar {
         Menu {
-            title: qsTr("Archivo")
+            title: qsTr("File")
             Action {
-                text: "Abrir"
+                text: qsTr("Open")
                 onTriggered: fileDialog.open()
             }
-            Action { text: "Guardar" }
-            Action { text: "Guardar como"}
+            Action { text: qsTr("Save") }
+            Action { text: qsTr("Save as...")}
         }
 
         Menu {
-            title: qsTr("Procesar")
+            title: qsTr("Processing")
             enabled: viewer.selected_file
             Action {
-                text: worker_manager.running ? "Detener procesamiento" : "Detectar tejido cancerígeno"
+                text: worker_manager.running ? qsTr("Stop processing") : qsTr("Start processing")
                 onTriggered: {
                     worker_manager.running ? worker_manager.stop_worker() : worker_manager.start_worker(viewer.selected_file)
                 }
             }
         }
         Menu {
-            title: qsTr("Ayuda")
-            Action { text: "Abrir ayuda"}
+            title: qsTr("Help")
+            Action { text: qsTr("Open help")}
         }
     }
 
@@ -136,7 +136,7 @@ ApplicationWindow {
                 z: dragArea.z+1
                 visible: (viewer.selected_file.toString() === "")
                 Label {
-                    text: qsTr("Arrastra una imagen aquí para abrir")
+                    text: qsTr("Drag and drop an image here to open it")
                     color: Material.color(Material.Grey, Material.Shade400)
                     anchors.centerIn: parent
                 }
@@ -198,7 +198,6 @@ ApplicationWindow {
                         property real m_min: 0.2
 
                         onPinchStarted: {
-                            console.log("Pinch Started")
                             m_x1 = scaler.origin.x
                             m_y1 = scaler.origin.y
                             m_x2 = pinch.startCenter.x
@@ -207,7 +206,6 @@ ApplicationWindow {
                             rect.y = rect.y + (pinchArea.m_y1-pinchArea.m_y2)*(1-pinchArea.m_zoom1)
                         }
                         onPinchUpdated: {
-                            console.log("Pinch Updated")
                             m_zoom1 = scaler.xScale
                             var dz = pinch.scale-pinch.previousScale
                             var newZoom = m_zoom1+dz
@@ -223,7 +221,6 @@ ApplicationWindow {
                             drag.filterChildren: true
 
                             onWheel: {
-                                console.log("Wheel Scrolled")
                                 pinchArea.m_x1 = scaler.origin.x
                                 pinchArea.m_y1 = scaler.origin.y
                                 pinchArea.m_zoom1 = scaler.xScale
@@ -251,10 +248,6 @@ ApplicationWindow {
 
                                 console.debug(rect.width+" -- "+rect.height+"--"+rect.scale)
 
-                            }
-                            MouseArea {
-                                anchors.fill: parent
-                                onClicked: console.log('Click in child')
                             }
                         }
                     }
@@ -328,9 +321,9 @@ ApplicationWindow {
 
     FileDialog {
         id: fileDialog
-        title: qsTr("Seleccionar archivo o carpeta")
+        title: qsTr("Select an image")
 //        folder: shortcuts.home
-        nameFilters: [ "Image files (*.jpg *.png *.bmp)" ]
+        nameFilters: [ qsTr("Image files ") + " (*.jpg *.png *.bmp)" ]
         onAccepted: {
 //            mapImage.source = fileDialog.fileUrl
 //            background_image.z = -1
