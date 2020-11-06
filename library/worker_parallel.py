@@ -2,16 +2,15 @@ import os
 import sys
 import signal
 import joblib
-# import matplotlib.pyplot as plt
 from multiprocessing import Pool, cpu_count
 from datetime import datetime
 from library.wsi_split import split_wsi
-# from svm.gui_predict import predict as run
-# from wsi.create_rgba_mask import create_rgba_mask
 from numpy import ones, array
 from pandas import DataFrame
 from SimpleITK import GetImageFromArray, VectorIndexSelectionCast
 from radiomics.featureextractor import RadiomicsFeatureExtractor
+
+
 
 NUM_OF_WORKERS = cpu_count()
 if NUM_OF_WORKERS < 1:

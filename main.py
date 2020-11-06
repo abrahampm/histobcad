@@ -18,7 +18,7 @@ if __name__ == '__main__':
 
     worker_manager = WorkerManager()
     worker_interface_thread = QThread()
-    worker_interface_thread.setObjectName("WorkerThread")
+    worker_interface_thread.setObjectName("WorkerInterfaceThread")
     worker_interface = WorkerInterface(start_signal=worker_manager.start, stop_signal=worker_manager.stop)
     worker_interface.msg_from_job.connect(worker_manager.receive_msg)
     worker_interface.moveToThread(worker_interface_thread)

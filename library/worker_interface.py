@@ -1,6 +1,6 @@
 from PySide2.QtCore import QObject, Signal, Slot
+from PySide2.QtGui import QGuiApplication
 from multiprocessing import Process, Queue
-
 from library.worker_parallel import predict
 
 
@@ -19,15 +19,13 @@ class WorkerInterface(QObject):
 
     @Slot(str)
     def _start_worker(self, job_input):
-        # print('Run runner method thread')
-        # print(self.thread().objectName())
-        # app.processEvents()
         self.worker_queue = Queue()
         self.worker_process = Process(target=predict, args=(self.worker_queue, job_input))
         self.worker_process.start()
         while True:
             msg = self.worker_queue.get()
             self.msg_from_job.emit(msg)
+            QGuiApplication.instance().processEvents()
             if isinstance(msg, dict):
                 if 'status' in msg:
                     if msg['status'] == 'done' or msg['status'] == 'stop':
@@ -35,6 +33,4 @@ class WorkerInterface(QObject):
 
     @Slot()
     def _stop_worker(self):
-        # self.worker_process.close()
         self.worker_process.terminate()
-        # self.thread().exit()
