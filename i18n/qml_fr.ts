@@ -45,26 +45,51 @@
     </message>
     <message>
         <location filename="../main.qml" line="38"/>
+        <source>Configuration</source>
+        <translation>Configuration</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="40"/>
+        <source>Language</source>
+        <translation>Langage</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="42"/>
+        <source>English</source>
+        <translation>Anglais</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="48"/>
+        <source>Spanish</source>
+        <translation>Espagnol</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="54"/>
+        <source>French</source>
+        <translation>Français</translation>
+    </message>
+    <message>
+        <location filename="../main.qml" line="62"/>
         <source>Help</source>
         <translation>Aide</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="39"/>
+        <location filename="../main.qml" line="63"/>
         <source>Open help</source>
         <translation>Ouvrir l&apos;aide</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="139"/>
+        <location filename="../main.qml" line="163"/>
         <source>Drag and drop an image here to open it</source>
         <translation>Faites glisser et déposez une image ici pour l&apos;ouvrir</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="324"/>
+        <location filename="../main.qml" line="348"/>
         <source>Select an image</source>
         <translation>Sélectionnez une image</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="326"/>
+        <location filename="../main.qml" line="350"/>
         <source>Image files </source>
         <translation>Fichiers image</translation>
     </message>

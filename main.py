@@ -2,12 +2,20 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
-from PySide2.QtCore import QThread
+from PySide2.QtCore import QThread, Slot
 from PySide2.QtGui import QGuiApplication
 from PySide2.QtQml import QQmlApplicationEngine
+
+from library.translator import Translator
 from library.viewer import Viewer
 from library.worker_interface import WorkerInterface
 from library.worker_manager import WorkerManager
+
+
+@Slot()
+def update_app_language():
+    app.installTranslator(translator.translator)
+    engine.retranslate()
 
 
 if __name__ == '__main__':
@@ -25,6 +33,8 @@ if __name__ == '__main__':
     worker_interface_thread.start()
 
     viewer = Viewer()
+    translator = Translator()
+    translator.updateAppLanguage.connect(update_app_language)
 
     qml_file = os.path.abspath(os.path.join(os.path.dirname(__file__), 'main.qml'))
 
@@ -32,6 +42,7 @@ if __name__ == '__main__':
     engine.load(qml_file)
 
     engine.rootContext().setContextProperty("worker_manager", worker_manager)
+    engine.rootContext().setContextProperty("translator", translator)
     engine.rootContext().setContextProperty("viewer", viewer)
 
     if not engine.rootObjects():
