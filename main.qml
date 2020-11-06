@@ -28,9 +28,9 @@ ApplicationWindow {
             title: qsTr("Procesar")
             enabled: viewer.selected_file
             Action {
-                text: worker.running ? "Detener procesamiento" : "Detectar tejido cancerígeno"
+                text: worker_manager.running ? "Detener procesamiento" : "Detectar tejido cancerígeno"
                 onTriggered: {
-                    worker.running ? worker.stop() : worker.start()
+                    worker_manager.running ? worker_manager.stop_worker() : worker_manager.start_worker(viewer.selected_file)
                 }
             }
         }
@@ -119,9 +119,9 @@ ApplicationWindow {
 ////                Material.background: Material.Indigo
 ////                anchors.centerIn: parent
 
-//                visible: worker.running
+//                visible: worker_manager.running
 //                onClicked: {
-//                    worker.stop()
+//                    worker_manager.stop_worker()
 //                }
 //            }
 
@@ -299,8 +299,8 @@ ApplicationWindow {
                 anchors.bottom: parent.bottom
                 from: 0
                 to: 100
-                visible: worker.running
-                value: worker.progress
+                visible: worker_manager.running
+                value: worker_manager.progress
                 Behavior on value { NumberAnimation {} }
             }
         }
@@ -321,7 +321,7 @@ ApplicationWindow {
             anchors.verticalCenter: parent.verticalCenter
             padding: 5
             elide: Text.ElideRight
-            text: worker.status
+            text: worker_manager.status
         }
     }
 
@@ -335,7 +335,6 @@ ApplicationWindow {
 //            mapImage.source = fileDialog.fileUrl
 //            background_image.z = -1
             viewer.selected_file = fileDialog.fileUrl
-//            worker.start()
         }
     }
 }

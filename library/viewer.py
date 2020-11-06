@@ -1,7 +1,8 @@
 import os
 import re
 
-from PySide2.QtCore import QObject, QStringListModel, QUrl, Signal, Property
+from PySide2.QtCore import QObject, QStringListModel, QUrl, Signal, Property, Slot, QAbstractItemModel
+
 
 class Viewer(QObject):
     def __init__(self):
