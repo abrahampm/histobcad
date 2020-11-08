@@ -38,11 +38,11 @@ if __name__ == '__main__':
     qml_file = os.path.abspath(os.path.join(os.path.dirname(__file__), 'main.qml'))
 
     engine = QQmlApplicationEngine()
-    engine.load(qml_file)
 
     engine.rootContext().setContextProperty("worker_manager", worker_manager)
     engine.rootContext().setContextProperty("translator", translator)
     engine.rootContext().setContextProperty("viewer", viewer)
+    engine.load(qml_file)
 
     if not engine.rootObjects():
         sys.exit(-1)
