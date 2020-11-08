@@ -14,7 +14,6 @@ class WorkerInterface(QObject):
         self.worker_queue = None
         start_signal.connect(self._start_worker)
         stop_signal.connect(self._stop_worker)
-        # print('Init runner thread')
         # print(self.thread().objectName())
 
     @Slot(str)
@@ -22,14 +21,14 @@ class WorkerInterface(QObject):
         self.worker_queue = Queue()
         self.worker_process = Process(target=predict, args=(self.worker_queue, job_input))
         self.worker_process.start()
+
         while True:
             msg = self.worker_queue.get()
-            self.msg_from_job.emit(msg)
             QGuiApplication.instance().processEvents()
-            if isinstance(msg, dict):
-                if 'status' in msg:
-                    if msg['status'] == 'done' or msg['status'] == 'stop':
-                        break
+            if isinstance(msg, dict) and 'status' in msg and (msg['status'] == 'done' or msg['status'] == 'stop'):
+                break
+            else:
+                self.msg_from_job.emit(msg)
 
     @Slot()
     def _stop_worker(self):

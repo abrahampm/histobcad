@@ -1,6 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.1" language="fr_FR" sourcelanguage="en_US">
+<!DOCTYPE TS><TS version="1.1" language="fr_FR">
+<context>
+    <name>@default</name>
+    <message>
+        <location filename="library/worker_parallel.py" line="265"/>
+        <source>Processing stopped</source>
+        <translation>Traitement arrêté</translation>
+    </message>
+    <message>
+        <location filename="library/worker_parallel.py" line="276"/>
+        <source>Creating task list...</source>
+        <translation>Création de la liste des tâches...</translation>
+    </message>
+    <message>
+        <location filename="library/worker_parallel.py" line="283"/>
+        <source>Starting parallel processing with </source>
+        <translation>Démarrage du traitement parallèle avec</translation>
+    </message>
+    <message>
+        <location filename="library/worker_parallel.py" line="291"/>
+        <source>processed</source>
+        <translation>traité</translation>
+    </message>
+    <message>
+        <location filename="library/worker_parallel.py" line="295"/>
+        <source>Parallel processing finished</source>
+        <translation>Traitement parallèle terminé</translation>
+    </message>
+    <message>
+        <location filename="library/worker_parallel.py" line="298"/>
+        <source>Creating highlighting mask...</source>
+        <translation>Création d&apos;un masque de surbrillance...</translation>
+    </message>
+    <message>
+        <location filename="library/worker_parallel.py" line="313"/>
+        <source>Image processed in </source>
+        <translation>Image traitée dans</translation>
+    </message>
+    <message>
+        <location filename="library/worker_parallel.py" line="259"/>
+        <source>Splitting image for processing</source>
+        <translation>Fractionner l&apos;image pour le traitement</translation>
+    </message>
+</context>
 <context>
     <name>main</name>
     <message>

@@ -5,7 +5,6 @@ import sys
 from PySide2.QtCore import QThread, Slot
 from PySide2.QtGui import QGuiApplication
 from PySide2.QtQml import QQmlApplicationEngine
-
 from library.translator import Translator
 from library.viewer import Viewer
 from library.worker_interface import WorkerInterface
@@ -52,7 +51,7 @@ if __name__ == '__main__':
     rc = app.exec_()
 
     if worker_manager.running:
-        worker_interface.stop()
+        worker_manager.stop_worker()
 
     worker_interface_thread.quit()
     worker_interface_thread.wait()

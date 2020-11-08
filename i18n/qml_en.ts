@@ -1,6 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.1" language="en_US" sourcelanguage="en_US">
+<!DOCTYPE TS><TS version="1.1" language="en_US">
+<context>
+    <name>@default</name>
+    <message>
+        <location filename="library/worker_parallel.py" line="265"/>
+        <source>Processing stopped</source>
+        <translation>Processing stopped</translation>
+    </message>
+    <message>
+        <location filename="library/worker_parallel.py" line="276"/>
+        <source>Creating task list...</source>
+        <translation>Creating task list...</translation>
+    </message>
+    <message>
+        <location filename="library/worker_parallel.py" line="283"/>
+        <source>Starting parallel processing with </source>
+        <translation>Starting parallel processing with</translation>
+    </message>
+    <message>
+        <location filename="library/worker_parallel.py" line="291"/>
+        <source>processed</source>
+        <translation>processed</translation>
+    </message>
+    <message>
+        <location filename="library/worker_parallel.py" line="295"/>
+        <source>Parallel processing finished</source>
+        <translation>Parallel processing finished</translation>
+    </message>
+    <message>
+        <location filename="library/worker_parallel.py" line="298"/>
+        <source>Creating highlighting mask...</source>
+        <translation>Creating highlighting mask...</translation>
+    </message>
+    <message>
+        <location filename="library/worker_parallel.py" line="313"/>
+        <source>Image processed in </source>
+        <translation>Image processed in</translation>
+    </message>
+    <message>
+        <location filename="library/worker_parallel.py" line="259"/>
+        <source>Splitting image for processing</source>
+        <translation>Splitting image for processing</translation>
+    </message>
+</context>
 <context>
     <name>main</name>
     <message>
