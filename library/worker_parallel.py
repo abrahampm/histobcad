@@ -2,16 +2,14 @@ import os
 import sys
 import signal
 import joblib
-# import matplotlib.pyplot as plt
 from multiprocessing import Pool, cpu_count
 from datetime import datetime
-from library.split_wsi import split_wsi
-# from svm.gui_predict import predict as run
-# from wsi.create_rgba_mask import create_rgba_mask
+from library.wsi_split import split_wsi
 from numpy import ones, array
 from pandas import DataFrame
 from SimpleITK import GetImageFromArray, VectorIndexSelectionCast
 from radiomics.featureextractor import RadiomicsFeatureExtractor
+
 
 NUM_OF_WORKERS = cpu_count()
 if NUM_OF_WORKERS < 1:
@@ -248,19 +246,20 @@ def run(d):
     return {'x': d['x']*tile_width, 'y': d['y']*tile_height, 'lbl': int(y_pred[0])}
 
 
-def predict(queue, file_path):
+def predict(queue, file_path, tr):
     global model
     global tiles
     global tile_width
     global tile_height
 
     start = datetime.now()
-    queue.put({'status': 'Dividiendo WSI para el procesamiento...'})
+    queue.put({'status': tr("Splitting image for processing")})
     wsi, tiles = split_wsi(file_path, tile_width, tile_height)
 
     pool = Pool(NUM_OF_WORKERS)
 
     def close(signum, frame):
+        queue.put({'status': tr('Processing stopped')})
         queue.put({'status': 'stop'})
         pool.close()
         pool.terminate()
@@ -271,14 +270,14 @@ def predict(queue, file_path):
     signal.signal(signal.SIGQUIT, close)
 
     jobs = []
-    queue.put({'status': 'Creando lista de tareas...'})
+    queue.put({'status': tr('Creating task list...')})
     for i in range(0, tiles.shape[0]):
         for j in range(0, tiles.shape[1]):
             jobs.append({'x': i, 'y': j})
 
     total_jobs = len(jobs)
     # queue.put({'status': "{} jobs loaded".format(total_jobs)})
-    queue.put({'status': "Iniciando el procesamiento paralelo..."})
+    queue.put({'status': tr('Starting parallel processing with ' + str(NUM_OF_WORKERS) + ' paraller workers...')})
 
     data = []
 
@@ -286,16 +285,16 @@ def predict(queue, file_path):
         data.append(d)
         progress = ((i + 1)/total_jobs)*100
         queue.put({'progress': round(progress, 2)})
-        queue.put({'status': "{:.0f}% ({} de {}) procesado".format(progress, i + 1, total_jobs)})
+        queue.put({'status': ("{:.0f}% ({} de {}) " + tr('processed')).format(progress, i + 1, total_jobs)})
     pool.close()
     pool.join()
 
-    queue.put({'status': "Procesamiento paralelo finalizado"})
+    queue.put({'status': tr('Parallel processing finished')})
     # queue.put({'status': "{} jobs processed in {}".format(total_jobs, str(end - start))})
 
-    queue.put({'status': "Creando máscara de resaltado..."})
-    msk_width = tiles.shape[0]*tile_width
-    msk_height = tiles.shape[1]*tile_height
+    queue.put({'status': tr('Creating highlighting mask...')})
+    # msk_width = tiles.shape[0]*tile_width
+    # msk_height = tiles.shape[1]*tile_height
     # msk = create_rgba_mask(data, msk_width, msk_height, tile_width, tile_height, 30)
     # queue.put({'status': 'Saving mask'})
     # fig = plt.figure(figsize=(wsi.shape[1] / 100, wsi.shape[0] / 100), dpi=100)
@@ -308,7 +307,7 @@ def predict(queue, file_path):
     # plt.imshow(msk,  extent=(0, msk_width, 0, msk_height))
     # fig.savefig('output.png', format='png', dpi=100, bbox_inches='tight', pad_inches=0, transparent=True)
     end = datetime.now()
-    queue.put({'status': 'Imagen procesada en {}'.format(end - start)})
+    queue.put({'status': (tr('Image processed in ') + '{}').format(end - start)})
     queue.put({'status': 'done'})
     return
 
