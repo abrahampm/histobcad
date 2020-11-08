@@ -18,7 +18,7 @@ def update_app_language():
 
 
 if __name__ == '__main__':
-    os.environ['QT_QUICK_CONTROLS_CONF'] = 'resources/qtquickcontrols2.conf'
+    # os.environ['QT_QUICK_CONTROLS_CONF'] = 'resources/qtquickcontrols2.conf'
 
     app = QGuiApplication(sys.argv)
     app.instance().thread().setObjectName('MainThread')
@@ -42,8 +42,6 @@ if __name__ == '__main__':
     engine.rootContext().setContextProperty("worker_manager", worker_manager)
     engine.rootContext().setContextProperty("translator", translator)
     engine.rootContext().setContextProperty("viewer", viewer)
-    engine.load(qml_file)
-
     engine.load(qml_file)
 
     if not engine.rootObjects():
