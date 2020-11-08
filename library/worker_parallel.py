@@ -4,15 +4,11 @@ import signal
 import joblib
 from multiprocessing import Pool, cpu_count
 from datetime import datetime
-
-from PySide2.QtGui import QGuiApplication
-
 from library.wsi_split import split_wsi
 from numpy import ones, array
 from pandas import DataFrame
 from SimpleITK import GetImageFromArray, VectorIndexSelectionCast
 from radiomics.featureextractor import RadiomicsFeatureExtractor
-
 
 
 NUM_OF_WORKERS = cpu_count()
