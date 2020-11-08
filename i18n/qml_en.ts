@@ -1,44 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="1.1" language="en_US">
+<!DOCTYPE TS>
+<TS version="2.1" language="en_US">
 <context>
-    <name>@default</name>
+    <name>WorkerInterface</name>
     <message>
-        <location filename="library/worker_parallel.py" line="265"/>
+        <location filename="library/worker_parallel.py" line="266"/>
         <source>Processing stopped</source>
         <translation>Processing stopped</translation>
     </message>
     <message>
-        <location filename="library/worker_parallel.py" line="276"/>
+        <location filename="library/worker_parallel.py" line="277"/>
         <source>Creating task list...</source>
         <translation>Creating task list...</translation>
     </message>
     <message>
-        <location filename="library/worker_parallel.py" line="283"/>
+        <location filename="library/worker_parallel.py" line="284"/>
         <source>Starting parallel processing with </source>
         <translation>Starting parallel processing with</translation>
     </message>
     <message>
-        <location filename="library/worker_parallel.py" line="291"/>
+        <location filename="library/worker_parallel.py" line="292"/>
         <source>processed</source>
         <translation>processed</translation>
     </message>
     <message>
-        <location filename="library/worker_parallel.py" line="295"/>
+        <location filename="library/worker_parallel.py" line="296"/>
         <source>Parallel processing finished</source>
         <translation>Parallel processing finished</translation>
     </message>
     <message>
-        <location filename="library/worker_parallel.py" line="298"/>
+        <location filename="library/worker_parallel.py" line="299"/>
         <source>Creating highlighting mask...</source>
         <translation>Creating highlighting mask...</translation>
     </message>
     <message>
-        <location filename="library/worker_parallel.py" line="313"/>
+        <location filename="library/worker_parallel.py" line="314"/>
         <source>Image processed in </source>
         <translation>Image processed in</translation>
     </message>
     <message>
-        <location filename="library/worker_parallel.py" line="259"/>
+        <location filename="library/worker_parallel.py" line="260"/>
         <source>Splitting image for processing</source>
         <translation>Splitting image for processing</translation>
     </message>

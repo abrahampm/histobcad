@@ -4,15 +4,16 @@ import signal
 import joblib
 from multiprocessing import Pool, cpu_count
 from datetime import datetime
+
+from PySide2.QtGui import QGuiApplication
+
 from library.wsi_split import split_wsi
 from numpy import ones, array
 from pandas import DataFrame
 from SimpleITK import GetImageFromArray, VectorIndexSelectionCast
 from radiomics.featureextractor import RadiomicsFeatureExtractor
-from PySide2.QtCore import QCoreApplication, QObject
 
-translate = QCoreApplication.translate
-tr = QObject().tr
+
 
 NUM_OF_WORKERS = cpu_count()
 if NUM_OF_WORKERS < 1:
@@ -249,7 +250,7 @@ def run(d):
     return {'x': d['x']*tile_width, 'y': d['y']*tile_height, 'lbl': int(y_pred[0])}
 
 
-def predict(queue, file_path):
+def predict(queue, file_path, tr):
     global model
     global tiles
     global tile_width

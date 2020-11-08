@@ -19,7 +19,7 @@ class WorkerInterface(QObject):
     @Slot(str)
     def _start_worker(self, job_input):
         self.worker_queue = Queue()
-        self.worker_process = Process(target=predict, args=(self.worker_queue, job_input))
+        self.worker_process = Process(target=predict, args=(self.worker_queue, job_input, self.tr))
         self.worker_process.start()
 
         while True:
