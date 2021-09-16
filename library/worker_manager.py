@@ -1,4 +1,5 @@
 from PySide2.QtCore import QObject, Signal, Property, Slot
+from numpy import ndarray
 
 
 class WorkerManager(QObject):
@@ -21,12 +22,16 @@ class WorkerManager(QObject):
     def receive_msg(self, msg):
         if isinstance(msg, dict):
             if 'status' in msg:
-                if msg['status'] == 'done':
-                    self._set_running(False)
-                else:
-                    self._set_status(msg['status'])
-            elif 'progress' in msg:
+                self._set_status(msg['status'])
+            if 'progress' in msg:
                 self._set_progress(msg['progress'])
+            if 'error' in msg or 'stop' in msg:
+                self._set_running(False)
+            if 'success' in msg:
+                self._set_running(False)
+                if msg['success'] is True and 'output' in msg:
+                    if 'mask' in msg['output']:
+                        self.on_output_mask.emit(msg['output']['mask'])
 
     def _get_progress(self):
         return self._progress
@@ -49,11 +54,12 @@ class WorkerManager(QObject):
         self._status = status
         self.on_status.emit()
 
+    on_output_mask = Signal(ndarray)
     on_progress = Signal()
     on_running = Signal()
     on_status = Signal()
     start = Signal(str)
-    stop = Signal()
+    stop = Signal(str)
 
     progress = Property(float, _get_progress, _set_progress, notify=on_progress)
     running = Property(bool, _get_running, _set_running, notify=on_running)
