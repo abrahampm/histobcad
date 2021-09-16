@@ -9,7 +9,8 @@ from numpy import ones, array
 from pandas import DataFrame
 from SimpleITK import GetImageFromArray, VectorIndexSelectionCast
 from radiomics.featureextractor import RadiomicsFeatureExtractor
-
+from library.create_rgba_mask import create_rgba_mask
+import matplotlib.pyplot as plt
 
 NUM_OF_WORKERS = cpu_count()
 if NUM_OF_WORKERS < 1:
@@ -277,7 +278,7 @@ def predict(queue, file_path, tr):
 
     total_jobs = len(jobs)
     # queue.put({'status': "{} jobs loaded".format(total_jobs)})
-    queue.put({'status': tr('Starting parallel processing with ' + str(NUM_OF_WORKERS) + ' paraller workers...')})
+    # queue.put({'status': tr('Starting parallel processing with ' + str(NUM_OF_WORKERS) + ' paraller workers...')})
 
     data = []
 
@@ -291,23 +292,13 @@ def predict(queue, file_path, tr):
 
     queue.put({'status': tr('Parallel processing finished')})
     # queue.put({'status': "{} jobs processed in {}".format(total_jobs, str(end - start))})
-
-    queue.put({'status': tr('Creating highlighting mask...')})
-    # msk_width = tiles.shape[0]*tile_width
-    # msk_height = tiles.shape[1]*tile_height
-    # msk = create_rgba_mask(data, msk_width, msk_height, tile_width, tile_height, 30)
-    # queue.put({'status': 'Saving mask'})
-    # fig = plt.figure(figsize=(wsi.shape[1] / 100, wsi.shape[0] / 100), dpi=100)
-    # plt.gca().set_axis_off()
-    # plt.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
-    # plt.margins(0, 0)
-    # plt.gca().xaxis.set_major_locator(plt.NullLocator())
-    # plt.gca().yaxis.set_major_locator(plt.NullLocator())
-    # # plt.imshow(wsi, extent=(0, wsi.shape[1], 0, wsi.shape[0]))
-    # plt.imshow(msk,  extent=(0, msk_width, 0, msk_height))
-    # fig.savefig('output.png', format='png', dpi=100, bbox_inches='tight', pad_inches=0, transparent=True)
+    joblib.dump(data, "data2.pkl")
+    queue.put({'status': tr('Creating highlighting mask')})
+    msk_width = wsi.shape[1]
+    msk_height = wsi.shape[0]
+    msk = create_rgba_mask(data, msk_width, msk_height, tile_width, tile_height, 30)
     end = datetime.now()
     queue.put({'status': (tr('Image processed in ') + '{}').format(end - start)})
-    queue.put({'status': 'done'})
+    queue.put({'success': True, 'output': {'mask': msk, 'data': data}})
     return
 
