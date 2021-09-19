@@ -8,8 +8,8 @@ from PySide2.QtQml import QQmlApplicationEngine
 from library.translator import Translator
 from library.viewer import Viewer
 from library.viewer_image_provider import ViewerImageProvider
-from library.worker_interface import WorkerInterface
-from library.worker_manager import WorkerManager
+from library.analysis_runner import AnalysisRunner
+from library.analysis_manager import AnalysisManager
 from resources import resources_rc
 
 @Slot()
@@ -21,20 +21,20 @@ def update_app_language():
 if __name__ == '__main__':
 
     app = QGuiApplication(sys.argv)
-    app.instance().thread().setObjectName('MainThread')
+    app.instance().thread().setObjectName('HistoBCAD')
 
-    worker_manager = WorkerManager()
-    worker_interface_thread = QThread()
-    worker_interface_thread.setObjectName("WorkerInterfaceThread")
-    worker_interface = WorkerInterface(start_signal=worker_manager.start, stop_signal=worker_manager.stop)
-    worker_interface.msg_from_job.connect(worker_manager.receive_msg)
-    worker_interface.moveToThread(worker_interface_thread)
-    worker_interface_thread.start()
+    analysis_manager = AnalysisManager()
+    analysis_runner_thread = QThread()
+    analysis_runner_thread.setObjectName("HistoBCAD_Runner")
+    analysis_runner = AnalysisRunner(start_signal=analysis_manager.start, stop_signal=analysis_manager.stop)
+    analysis_runner.msg_from_job.connect(analysis_manager.receive_message)
+    analysis_runner.moveToThread(analysis_runner_thread)
+    analysis_runner_thread.start()
 
     viewer = Viewer()
     viewer_image_provider = ViewerImageProvider()
     viewer.on_mask_image.connect(viewer_image_provider.set_mask_image)
-    worker_manager.on_output_mask.connect(viewer.set_mask_image)
+    analysis_manager.on_output_mask.connect(viewer.set_mask_image)
 
     translator = Translator()
     translator.updateAppLanguage.connect(update_app_language)
@@ -44,7 +44,7 @@ if __name__ == '__main__':
     engine = QQmlApplicationEngine()
 
     engine.addImageProvider("viewer_image_provider", viewer_image_provider)
-    engine.rootContext().setContextProperty("worker_manager", worker_manager)
+    engine.rootContext().setContextProperty("analysis_manager", analysis_manager)
     engine.rootContext().setContextProperty("translator", translator)
     engine.rootContext().setContextProperty("viewer", viewer)
     engine.load(qml_file)
@@ -52,14 +52,13 @@ if __name__ == '__main__':
     if not engine.rootObjects():
         sys.exit(-1)
 
-    root = engine.rootObjects()[0]
     rc = app.exec_()
 
-    if worker_manager.running:
-        worker_manager.stop_worker()
+    if analysis_manager.running:
+        analysis_manager.stop_analysis()
 
-    worker_interface_thread.quit()
-    worker_interface_thread.wait()
+    analysis_runner_thread.quit()
+    analysis_runner_thread.wait()
 
     sys.exit(rc)
 
