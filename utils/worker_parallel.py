@@ -4,13 +4,13 @@ import signal
 import joblib
 from multiprocessing import Pool, cpu_count
 from datetime import datetime
-from library.wsi_split import split_wsi
+from library.wsi_utils import split_image
 from numpy import ones, array
 from pandas import DataFrame
 from SimpleITK import GetImageFromArray, VectorIndexSelectionCast
 from radiomics.featureextractor import RadiomicsFeatureExtractor
 from library.create_rgba_mask import create_rgba_mask
-import matplotlib.pyplot as plt
+
 
 NUM_OF_WORKERS = cpu_count()
 if NUM_OF_WORKERS < 1:
@@ -182,7 +182,7 @@ base = os.path.dirname(__file__)
 model_path = os.path.abspath(os.path.join(base, '../models/svmclassifier.C30_coef01.0_degree3_kernelpoly_selected_features100_histomics_rgb_color_histogram_rgb.joblib.pkl'))
 model = joblib.load(model_path)
 
-scaler_path = os.path.abspath(os.path.join(base, '../utils/scaler_gui_100_features.joblib.pkl'))
+scaler_path = os.path.abspath(os.path.join(base, '../utils/feature_scaler_100.joblib.pkl'))
 scaler = joblib.load(scaler_path)
 
 tiles = []
@@ -255,7 +255,7 @@ def predict(queue, file_path, tr):
 
     start = datetime.now()
     queue.put({'status': tr("Splitting image for processing")})
-    wsi, tiles = split_wsi(file_path, tile_width, tile_height)
+    wsi, tiles = split_image(file_path, tile_width, tile_height)
 
     pool = Pool(NUM_OF_WORKERS)
 

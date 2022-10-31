@@ -2,14 +2,19 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
+import requests
 from PySide2.QtCore import QThread, Slot
 from PySide2.QtGui import QGuiApplication
 from PySide2.QtQml import QQmlApplicationEngine
+
+from library.auth_service import AuthService
 from library.translator import Translator
 from library.viewer import Viewer
 from library.viewer_image_provider import ViewerImageProvider
+from library.captcha_image_provider import CaptchaImageProvider
 from library.analysis_runner import AnalysisRunner
 from library.analysis_manager import AnalysisManager
+from library.auth_manager import AuthManager
 from resources import resources_rc
 
 @Slot()
@@ -18,7 +23,12 @@ def update_app_language():
     engine.retranslate()
 
 
+API_URL = "http://histobcad-server.docksal/api"
+
 if __name__ == '__main__':
+    requests_session = requests.Session()
+    requests_thread = QThread()
+    requests_thread.setObjectName("HistoBCAD_Requests")
 
     app = QGuiApplication(sys.argv)
     app.instance().thread().setObjectName('HistoBCAD')
@@ -36,6 +46,19 @@ if __name__ == '__main__':
     viewer.on_mask_image.connect(viewer_image_provider.set_mask_image)
     analysis_manager.on_output_mask.connect(viewer.set_mask_image)
 
+    auth_manager = AuthManager()
+    auth_service = AuthService(on_login=auth_manager.do_login, on_register=auth_manager.do_register,
+                               on_refresh_captcha=auth_manager.on_refresh_captcha, api_base=API_URL,
+                               requests_session=requests_session)
+    captcha_image_provider = CaptchaImageProvider()
+    auth_service.on_login_result.connect(auth_manager.on_login_result)
+    auth_service.on_register_result.connect(auth_manager.on_register_result)
+    auth_service.on_captcha_image.connect(auth_manager.on_captcha_image_result)
+    auth_manager.on_captcha_image.connect(captcha_image_provider.set_captcha_image)
+
+    auth_service.moveToThread(requests_thread)
+    requests_thread.start()
+
     translator = Translator()
     translator.updateAppLanguage.connect(update_app_language)
 
@@ -44,9 +67,11 @@ if __name__ == '__main__':
     engine = QQmlApplicationEngine()
 
     engine.addImageProvider("viewer_image_provider", viewer_image_provider)
+    engine.addImageProvider("captcha_image_provider", captcha_image_provider)
     engine.rootContext().setContextProperty("analysis_manager", analysis_manager)
     engine.rootContext().setContextProperty("translator", translator)
     engine.rootContext().setContextProperty("viewer", viewer)
+    engine.rootContext().setContextProperty("auth_manager", auth_manager)
     engine.load(qml_file)
 
     if not engine.rootObjects():
@@ -57,6 +82,8 @@ if __name__ == '__main__':
     if analysis_manager.running:
         analysis_manager.stop_analysis()
 
+    requests_thread.quit()
+    requests_thread.wait()
     analysis_runner_thread.quit()
     analysis_runner_thread.wait()
 
