@@ -20,7 +20,7 @@ ApplicationWindow {
             title: qsTr("File")
             Action {
                 text: qsTr("Open")
-                onTriggered: fileDialog.open()
+                onTriggered: openFileDialog.open()
             }
             Action { text: qsTr("Save") }
             Action { text: qsTr("Save as...")}
@@ -178,66 +178,13 @@ ApplicationWindow {
         anchors.fill: parent
         orientation: Qt.Horizontal
 
-        Rectangle {
-            id: leftPanel
-            color: Material.color(Material.Grey, Material.Shade50)
-            SplitView.minimumWidth: parent.width * 0.1
+        Components.ComponentImageListPanel {
+            SplitView.minimumWidth: parent.width*0.1
             SplitView.preferredWidth: parent.width * 0.15
             SplitView.maximumWidth: parent.width * 0.2
-            visible: viewer.selected_file.toString() !== ""
-            ScrollView {
-                anchors.fill: parent
-                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff // disable the horizontal scroll bar
-
-                ListView {
-                    id: listView
-                    model: viewer.selected_file_siblings
-                    width: parent.width
-                    height: parent.height
-                    anchors.fill: parent
-                    spacing: 10
-
-                    // The delegate presents the information stored in the model
-                    delegate: Rectangle {
-                        border.color: Material.color(Material.Grey, (display === viewer.selected_file) ? Material.Shade700 : Material.Shade300)
-                        border.width: (display === viewer.selected_file) ? 3 : 1
-                        width: parent.width
-                        height: parent.width * 0.60
-
-                        Image {
-                            asynchronous: true
-                            fillMode: Image.PreserveAspectCrop
-                            source: display
-                            width: parent.width - 20
-                            height: parent.width * 0.56
-                            sourceSize.width: 512
-                            sourceSize.height: 512
-                            anchors.centerIn: parent
-
-                            BusyIndicator {
-                                running: parent.status === Image.Loading
-                                anchors.centerIn: parent
-                            }
-                        }
-//                        Label {
-//                            text: display
-//                            anchors.centerIn: parent.Center
-//                        }
-                        MouseArea {
-                            anchors.fill: parent
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: {
-                                viewer.mask_file = ''
-                                viewer.selected_file = display
-
-                            }
-                        }
-                    }
-                }
-            }
         }
 
-        Components.ComponentViewer {
+        Components.ComponentDeepZoomViewer {
             SplitView.minimumWidth: parent.width*0.5
             SplitView.fillWidth: true
         }
@@ -287,19 +234,8 @@ ApplicationWindow {
         }
     }
 
-
-    FileDialog {
-        id: fileDialog
-        title: qsTr("Select an image")
-//        folder: shortcuts.home
-        nameFilters: [ qsTr("Image files ") + " (*.jpg *.png *.bmp)" ]
-        onAccepted: {
-//            mapImage.source = fileDialog.fileUrl
-//            background_image.z = -1
-            viewer.selected_file = fileDialog.fileUrl
-            rightPanelContentLoader.source = "qml/components/ComponentDiagnosticForm.qml"
-            rightPanel.visible = true
-        }
+    Dialogs.DialogOpenFile {
+        id: openFileDialog
     }
 
     Dialogs.DialogLogin {
