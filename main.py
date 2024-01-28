@@ -8,6 +8,8 @@ from PySide2.QtGui import QGuiApplication
 from PySide2.QtQml import QQmlApplicationEngine
 
 from library.auth_service import AuthService
+from library.deepzoom_server import DeepZoomServer
+from library.deepzoom_viewer import DeepZoomViewer
 from library.translator import Translator
 from library.viewer import Viewer
 from library.viewer_image_provider import ViewerImageProvider
@@ -15,6 +17,7 @@ from library.captcha_image_provider import CaptchaImageProvider
 from library.analysis_runner import AnalysisRunner
 from library.analysis_manager import AnalysisManager
 from library.auth_manager import AuthManager
+# noinspection PyUnresolvedReferences
 from resources import resources_rc
 
 @Slot()
@@ -24,6 +27,9 @@ def update_app_language():
 
 
 API_URL = "http://histobcad-server.docksal/api"
+DEEPZOOM_HOST = "localhost"
+DEEPZOOM_PORT = "5984"
+
 
 if __name__ == '__main__':
     requests_session = requests.Session()
@@ -45,6 +51,14 @@ if __name__ == '__main__':
     viewer_image_provider = ViewerImageProvider()
     viewer.on_mask_image.connect(viewer_image_provider.set_mask_image)
     analysis_manager.on_output_mask.connect(viewer.set_mask_image)
+
+    deepzoom_server_thread = QThread()
+    deepzoom_server_thread.setObjectName("HistoBCAD_DeepZoom")
+    deepzoom_server = DeepZoomServer(DEEPZOOM_HOST, DEEPZOOM_PORT)
+    deepzoom_viewer = DeepZoomViewer(server=deepzoom_server)
+    deepzoom_server.moveToThread(deepzoom_server_thread)
+    deepzoom_server_thread.started.connect(deepzoom_server.run)
+    deepzoom_server_thread.start()
 
     auth_manager = AuthManager()
     auth_service = AuthService(on_login=auth_manager.do_login, on_register=auth_manager.do_register,
@@ -70,7 +84,8 @@ if __name__ == '__main__':
     engine.addImageProvider("captcha_image_provider", captcha_image_provider)
     engine.rootContext().setContextProperty("analysis_manager", analysis_manager)
     engine.rootContext().setContextProperty("translator", translator)
-    engine.rootContext().setContextProperty("viewer", viewer)
+    # engine.rootContext().setContextProperty("viewer", viewer)
+    engine.rootContext().setContextProperty("viewer", deepzoom_viewer)
     engine.rootContext().setContextProperty("auth_manager", auth_manager)
     engine.load(qml_file)
 
@@ -86,6 +101,8 @@ if __name__ == '__main__':
     requests_thread.wait()
     analysis_runner_thread.quit()
     analysis_runner_thread.wait()
+    deepzoom_server_thread.quit()
+    deepzoom_server_thread.wait()
 
     sys.exit(rc)
 
