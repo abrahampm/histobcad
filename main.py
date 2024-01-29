@@ -28,7 +28,7 @@ def update_app_language():
 
 API_URL = "http://histobcad-server.docksal/api"
 DEEPZOOM_HOST = "localhost"
-DEEPZOOM_PORT = "5984"
+DEEPZOOM_PORT = 8989
 
 
 if __name__ == '__main__':

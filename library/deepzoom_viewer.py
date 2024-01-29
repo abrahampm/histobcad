@@ -39,6 +39,7 @@ class DeepZoomViewer(QObject):
         self._server.set_base_dir(self._selected_file_folder)
         self._selected_file_url = self._server.get_slide_url(self._selected_file_name)
         self.on_selected_file.emit()
+        self.reload.emit()
         self._detect_selected_file_siblings()
         print("Selected file: ", self._selected_file_url)
         print("Selected file folder: ", self._selected_file_folder)
@@ -63,6 +64,7 @@ class DeepZoomViewer(QObject):
 
     on_selected_file = Signal()
     on_selected_file_siblings = Signal()
+    reload = Signal()
 
     selected_file = Property(QUrl, get_selected_file, set_selected_file, notify=on_selected_file)
     selected_file_siblings = Property(QAbstractItemModel, get_selected_file_siblings, set_selected_file_siblings, notify=on_selected_file_siblings)

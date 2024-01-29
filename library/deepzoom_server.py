@@ -1,4 +1,6 @@
 import os
+import signal
+import sys
 from io import BytesIO
 
 from PySide2.QtCore import QObject, Slot
@@ -22,11 +24,11 @@ class DeepZoomServer(QObject):
             SLIDE_DIR='.',
             SLIDE_CACHE_SIZE=10,
             SLIDE_TILE_CACHE_MB=128,
-            DEEPZOOM_FORMAT='jpeg',
-            DEEPZOOM_TILE_SIZE=254,
-            DEEPZOOM_OVERLAP=1,
+            DEEPZOOM_FORMAT='png',
+            DEEPZOOM_TILE_SIZE=256,
+            DEEPZOOM_OVERLAP=0,
             DEEPZOOM_LIMIT_BOUNDS=True,
-            DEEPZOOM_TILE_QUALITY=75,
+            DEEPZOOM_TILE_QUALITY=95,
             DEEPZOOM_COLOR_MODE='default',
         )
 
@@ -48,7 +50,8 @@ class DeepZoomServer(QObject):
 
     @Slot()
     def run(self):
-        print('Starting Deepzoom Server')
+
+        print('Starting deepzoom server')
         self._app.run(host=self._host, port=self._port, threaded=False)
 
     def get_base_url(self) -> str:
@@ -65,12 +68,12 @@ class DeepZoomServer(QObject):
 
     def __register_routes__(self):
         @self._app.route('/<path:path>/thumbnail')
-        def get_slide(path):
-            return self.__get_tile__(path, 8, 0, 0, 'png')
+        def get_thumbnail(path):
+            return self.__get_tile__(path, 9, 0, 0, 'png')
 
         @self._app.route('/<path:path>/tiles/<int:level>/<int:col>/<int:row>.<img_format>')
         def get_tile(path, level, col, row, img_format):
-            return self.__get_tile__(path, level + 8, col, row, img_format)
+            return self.__get_tile__(path, level + 9, col, row, img_format)
 
     def __get_slide__(self, path):
         path = os.path.abspath(os.path.join(self._app.basedir, path))
