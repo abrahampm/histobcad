@@ -74,18 +74,12 @@ class DeepZoomViewer(QObject):
         print(self._dzi_dimensions)
         self.set_dzi_min_zoom_level()
         self.set_dzi_max_zoom_level()
+    
+    def get_dzi_max_width(self):
+        return self._dzi_dimensions[-1][0]
 
-    @Slot(int, result='int')
-    def get_dzi_width_at_zoom_level(self, zoom_level) -> int:
-        return self._dzi_levels[zoom_level][0]
-
-    @Slot(int, result='int')
-    def get_dzi_height_at_zoom_level(self, zoom_level) -> int:
-        return self._dzi_levels[zoom_level][1]
-
-    @Slot(int, int, result='int')
-    def get_dzi_zoom_level_fit_to_viewport(self, viewport_width, viewport_height) -> int:
-        return next(x[0] for x in enumerate(self._dzi_dimensions) if x[1][0] >= viewport_width or x[1][1] >= viewport_height)
+    def get_dzi_max_height(self):
+        return self._dzi_dimensions[-1][1]
 
     def get_dzi_min_zoom_level(self):
         return self._dzi_min_zoom_level
@@ -103,12 +97,16 @@ class DeepZoomViewer(QObject):
 
 
     reload = Signal()
+    on_dzi_max_width = Signal()
+    on_dzi_max_height = Signal()
     on_dzi_min_zoom_level = Signal()
     on_dzi_max_zoom_level = Signal()
     on_selected_file = Signal()
     on_selected_file_siblings = Signal()
 
+    dzi_max_width = Property(int, get_dzi_max_width, notify=on_dzi_max_width)
+    dzi_max_height = Property(int, get_dzi_max_height, notify=on_dzi_max_height)
     dzi_min_zoom_level = Property(int, get_dzi_min_zoom_level, set_dzi_min_zoom_level, notify=on_dzi_min_zoom_level)
-    dzi_max_zoom_level = Property(int, get_dzi_max_zoom_level, get_dzi_max_zoom_level, notify=on_dzi_max_zoom_level)
+    dzi_max_zoom_level = Property(int, get_dzi_max_zoom_level, set_dzi_max_zoom_level, notify=on_dzi_max_zoom_level)
     selected_file = Property(QUrl, get_selected_file, set_selected_file, notify=on_selected_file)
     selected_file_siblings = Property(QAbstractItemModel, get_selected_file_siblings, set_selected_file_siblings, notify=on_selected_file_siblings)

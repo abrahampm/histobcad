@@ -71,20 +71,21 @@ Map {
         var viewport_height = deepzoom_map.height;
         console.log(viewport_width);
         console.log(viewport_height);
-        var fit_zoom_level = viewer.get_dzi_zoom_level_fit_to_viewport(viewport_width, viewport_height);
-        var map_width = viewer.get_dzi_width_at_zoom_level(fit_zoom_level);
-        var map_height = viewer.get_dzi_height_at_zoom_level(fit_zoom_level);
-        console.log("Fit zoom level", fit_zoom_level);
-        console.log("Map width", map_width);
-        console.log("Map height", map_height);
-        deepzoom_map.minimumZoomLevel = fit_zoom_level - 1;
-        var topLeftCoordinate = tile2coordinate(0, 0, fit_zoom_level);
-        var bottomRightCoordinate = tile2coordinate(map_width, map_height, fit_zoom_level);
+        var max_zoom_level = viewer.dzi_max_zoom_level;
+        var max_width = viewer.dzi_max_width;
+        var max_height = viewer.dzi_max_height;
+        console.log("Max zoom level", max_zoom_level);
+        console.log("Max width", max_width);
+        console.log("Max height", max_height);
+        deepzoom_map.minimumZoomLevel = 10;
+        var topLeftCoordinate = tile2coordinate(0, 0, );
+        var bottomRightCoordinate = tile2coordinate(max_width / 256, max_height / 256, max_zoom_level);
+        map_rect_region.topLeft = topLeftCoordinate;
+        map_rect_region.bottomRight = bottomRightCoordinate;
         console.log("Visible region before: ", deepzoom_map.visibleRegion.boundingGeoRectangle())
         deepzoom_map.visibleRegion = QtPositioning.rectangle(topLeftCoordinate, bottomRightCoordinate);
         console.log("Visible region after: ", deepzoom_map.visibleRegion.boundingGeoRectangle())
-        map_rect_region.topLeft = topLeftCoordinate;
-        map_rect_region.bottomRight = bottomRightCoordinate;
+        deepzoom_map.fitViewportToGeoShape(deepzoom_map.visibleRegion, 0)
     }
 
     function tile2coordinate(xtile, ytile, zoom) {
