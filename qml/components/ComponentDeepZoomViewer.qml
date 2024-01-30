@@ -22,6 +22,7 @@ Rectangle {
     Loader{
         id: deepzoom_map_loader
         anchors.fill: parent
+
         z: 2002
         onStatusChanged: if (deepzoom_map_loader.status === Loader.Ready) console.log('New map loaded')
     }

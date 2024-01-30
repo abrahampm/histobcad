@@ -96,6 +96,10 @@ if __name__ == '__main__':
 
     if analysis_manager.running:
         analysis_manager.stop_analysis()
+    try:
+        deepzoom_server.stop()
+    except KeyboardInterrupt:
+        pass
 
     requests_thread.quit()
     requests_thread.wait()
@@ -103,6 +107,6 @@ if __name__ == '__main__':
     analysis_runner_thread.wait()
     deepzoom_server_thread.quit()
     deepzoom_server_thread.wait()
-
+    print("Shutting down")
     sys.exit(rc)
 

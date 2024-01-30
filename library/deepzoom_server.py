@@ -3,6 +3,7 @@ import signal
 import sys
 from io import BytesIO
 
+from PIL import Image
 from PySide2.QtCore import QObject, Slot
 from flask import Flask, abort, make_response
 from openslide import OpenSlideError
@@ -17,6 +18,8 @@ class DeepZoomServer(QObject):
         self._port = port
         self._protocol = 'http'
         self._base_url = f'{self._protocol}://{self._host}:{self._port}'
+        self._tile_size = 256
+        self._bg_color = "#000000"
 
         # Create and configure app
         self._app = Flask(__name__)
@@ -25,7 +28,7 @@ class DeepZoomServer(QObject):
             SLIDE_CACHE_SIZE=10,
             SLIDE_TILE_CACHE_MB=128,
             DEEPZOOM_FORMAT='png',
-            DEEPZOOM_TILE_SIZE=256,
+            DEEPZOOM_TILE_SIZE=self._tile_size,
             DEEPZOOM_OVERLAP=0,
             DEEPZOOM_LIMIT_BOUNDS=True,
             DEEPZOOM_TILE_QUALITY=95,
@@ -50,9 +53,14 @@ class DeepZoomServer(QObject):
 
     @Slot()
     def run(self):
-
         print('Starting deepzoom server')
         self._app.run(host=self._host, port=self._port, threaded=False)
+
+    @Slot()
+    def stop(self):
+        print('Stopping deepzoom server')
+
+
 
     def get_base_url(self) -> str:
         return self._base_url
@@ -66,6 +74,14 @@ class DeepZoomServer(QObject):
     def set_base_dir(self, base_dir: str):
         self._app.basedir = base_dir
 
+    def get_level_tiles(self, file_name: str) -> tuple:
+        slide = self.__get_slide__(file_name)
+        return slide.level_tiles
+
+    def get_level_dimensions(self, file_name: str) -> tuple:
+        slide = self.__get_slide__(file_name)
+        return slide.level_dimensions
+
     def __register_routes__(self):
         @self._app.route('/<path:path>/thumbnail')
         def get_thumbnail(path):
@@ -73,7 +89,7 @@ class DeepZoomServer(QObject):
 
         @self._app.route('/<path:path>/tiles/<int:level>/<int:col>/<int:row>.<img_format>')
         def get_tile(path, level, col, row, img_format):
-            return self.__get_tile__(path, level + 9, col, row, img_format)
+            return self.__get_tile__(path, level, col, row, img_format)
 
     def __get_slide__(self, path):
         path = os.path.abspath(os.path.join(self._app.basedir, path))
@@ -87,7 +103,7 @@ class DeepZoomServer(QObject):
             slide.filename = os.path.basename(path)
             return slide
         except OpenSlideError:
-            abort(404)
+            abort(500)
 
     def __get_tile__(self, path, level, col, row, img_format):
         slide = self.__get_slide__(path)
@@ -95,12 +111,19 @@ class DeepZoomServer(QObject):
         if format != 'jpg' and format != 'png':
             # Not supported by Deep Zoom
             abort(404)
+
         try:
             tile = slide.get_tile(level, (col, row))
         except ValueError:
             # Invalid level or coordinates
             print("Invalid level or coordinates", level, col, row)
-            abort(404)
+            tile = Image.new('RGB', (self._tile_size, self._tile_size), self._bg_color)
+
+        if col == slide.level_tiles[level][0] - 1 or row == slide.level_tiles[level][1] - 1:
+            bg = Image.new('RGB', (self._tile_size, self._tile_size), self._bg_color)
+            bg.paste(tile, (0, 0))
+            tile = bg
+
         slide.transform(tile)
         buf = BytesIO()
         tile.save(
