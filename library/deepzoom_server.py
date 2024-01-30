@@ -19,7 +19,7 @@ class DeepZoomServer(QObject):
         self._protocol = 'http'
         self._base_url = f'{self._protocol}://{self._host}:{self._port}'
         self._tile_size = 256
-        self._bg_color = "#000000"
+        self._bg_color = "#ffffff"
 
         # Create and configure app
         self._app = Flask(__name__)
@@ -89,7 +89,8 @@ class DeepZoomServer(QObject):
 
         @self._app.route('/<path:path>/tiles/<int:level>/<int:col>/<int:row>.<img_format>')
         def get_tile(path, level, col, row, img_format):
-            return self.__get_tile__(path, level, col, row, img_format)
+            origin = (1 << level) / 2
+            return self.__get_tile__(path, level, col - origin, row - origin, img_format)
 
     def __get_slide__(self, path):
         path = os.path.abspath(os.path.join(self._app.basedir, path))
@@ -119,7 +120,7 @@ class DeepZoomServer(QObject):
             print("Invalid level or coordinates", level, col, row)
             tile = Image.new('RGB', (self._tile_size, self._tile_size), self._bg_color)
 
-        if col == slide.level_tiles[level][0] - 1 or row == slide.level_tiles[level][1] - 1:
+        if level < len(slide.level_tiles) and (col == slide.level_tiles[level][0] - 1 or row == slide.level_tiles[level][1] - 1):
             bg = Image.new('RGB', (self._tile_size, self._tile_size), self._bg_color)
             bg.paste(tile, (0, 0))
             tile = bg

@@ -32,7 +32,7 @@ Map {
         }
     }
     // zoomLevel: viewer.dzi_min_zoom_level
-    // minimumZoomLevel: 5
+    minimumZoomLevel: viewer.dzi_min_zoom_level
     maximumZoomLevel: viewer.dzi_max_zoom_level
     //center: QtPositioning.coordinate(90, 180)
     activeMapType: supportedMapTypes[supportedMapTypes.length - 1]
@@ -54,38 +54,32 @@ Map {
     //     id: map_rect_region2
     //     border.width: 2
     //     border.color: 'red'
-    //     topLeft: tile2coordinate(0,0, 12)
-    //     bottomRight: tile2coordinate(1,1, 12)
+    //     topLeft: tile2coordinate(0,0, 11)
+    //     bottomRight: tile2coordinate(1,1, 11)
     // }
     // MapRectangle {
     //     id: map_rect_region3
     //     border.width: 2
     //     border.color: 'green'
     //     topLeft: tile2coordinate(0,0, 11)
-    //     bottomRight: tile2coordinate(1,1, 11)
+    //     bottomRight: tile2coordinate(5,5, 11)
     // }
     function setVisibleRegion() {
         console.log("Min zoom level", viewer.dzi_min_zoom_level);
         console.log("Max zoom level", viewer.dzi_max_zoom_level);
-        var viewport_width = deepzoom_map.width;
-        var viewport_height = deepzoom_map.height;
-        console.log(viewport_width);
-        console.log(viewport_height);
         var max_zoom_level = viewer.dzi_max_zoom_level;
-        var max_width = viewer.dzi_max_width;
-        var max_height = viewer.dzi_max_height;
-        console.log("Max zoom level", max_zoom_level);
-        console.log("Max width", max_width);
-        console.log("Max height", max_height);
-        deepzoom_map.minimumZoomLevel = 10;
-        var topLeftCoordinate = tile2coordinate(0, 0, );
-        var bottomRightCoordinate = tile2coordinate(max_width / 256, max_height / 256, max_zoom_level);
+        var max_width = viewer.dzi_max_width / 256;
+        var max_height = viewer.dzi_max_height / 256;
+        var origin = (1 << max_zoom_level) / 2;
+        var topLeftCoordinate = tile2coordinate(origin, origin, max_zoom_level);
+        var bottomRightCoordinate = tile2coordinate(origin + max_width, origin + max_height, max_zoom_level);
         map_rect_region.topLeft = topLeftCoordinate;
         map_rect_region.bottomRight = bottomRightCoordinate;
         console.log("Visible region before: ", deepzoom_map.visibleRegion.boundingGeoRectangle())
-        deepzoom_map.visibleRegion = QtPositioning.rectangle(topLeftCoordinate, bottomRightCoordinate);
+        var r = QtPositioning.rectangle(topLeftCoordinate, bottomRightCoordinate)
+        console.log("Geo rectangle", r);
+        deepzoom_map.visibleRegion = r;
         console.log("Visible region after: ", deepzoom_map.visibleRegion.boundingGeoRectangle())
-        deepzoom_map.fitViewportToGeoShape(deepzoom_map.visibleRegion, 0)
     }
 
     function tile2coordinate(xtile, ytile, zoom) {
@@ -102,4 +96,12 @@ Map {
     //     border.width: 3
     //     color: 'transparent'
     // }
+    Button {
+        text: qsTr("Fit to size")
+        anchors.bottom: parent.bottom
+        anchors.right: parent.right
+        onClicked: {
+            setVisibleRegion();
+        }
+    }
 }
