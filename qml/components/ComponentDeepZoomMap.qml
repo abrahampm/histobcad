@@ -120,20 +120,6 @@ Map {
             }
         }
     }
-    // MapRectangle {
-    //     id: map_rect_region2
-    //     border.width: 2
-    //     border.color: 'red'
-    //     topLeft: tile2coordinate(0,0, 11)
-    //     bottomRight: tile2coordinate(1,1, 11)
-    // }
-    // MapRectangle {
-    //     id: map_rect_region3
-    //     border.width: 2
-    //     border.color: 'green'
-    //     topLeft: tile2coordinate(0,0, 11)
-    //     bottomRight: tile2coordinate(5,5, 11)
-    // }
     function setVisibleRegion() {
         console.log("Min zoom level", viewer.dzi_min_zoom_level);
         console.log("Max zoom level", viewer.dzi_max_zoom_level);
