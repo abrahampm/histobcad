@@ -39,15 +39,112 @@ Map {
     onMapReadyChanged: {
         setVisibleRegion();
     }
-    // onCenterChanged: {
-    //     console.log("Current visible area:", deepzoom_map.visibleArea);
-    //     console.log("Current visible region bounding box:", deepzoom_map.visibleRegion.boundingGeoRectangle());
-    //     console.log("Current center:", deepzoom_map.center);
-    // }
+    onCenterChanged: {
+        var currentVisibleRegionRect = deepzoom_map.visibleRegion.boundingGeoRectangle();
+        var currentTopLeft = deepzoom_map.fromCoordinate(currentVisibleRegionRect.topLeft);
+        var currentBottomRight = deepzoom_map.fromCoordinate(currentVisibleRegionRect.bottomRight);
+        var currentWidth = currentBottomRight.x - currentTopLeft.x;
+        var currentHeight = currentBottomRight.y - currentTopLeft.y;
+        var originTopLeft = deepzoom_map.fromCoordinate(deepzoom_map_rect_region.topLeft, false);
+        var originBottomRight = deepzoom_map.fromCoordinate(deepzoom_map_rect_region.bottomRight, false);
+        var originWidth = originBottomRight.x - originTopLeft.x;
+        var originHeight = originBottomRight.y - originTopLeft.y;
+
+        console.log("Current visible region top left:", currentTopLeft);
+        console.log("Current visible region bottom right:", currentBottomRight);
+        console.log("Origin visible region top left:", originTopLeft);
+        console.log("Origin visible region bottom right:", originBottomRight);
+
+        var xScaleFactor = currentWidth / originWidth;
+        var yScaleFactor = currentHeight / originHeight;
+        var xPosFactor = (currentTopLeft.x - originTopLeft.x) / originWidth;
+        var yPosFactor = (currentTopLeft.y - originTopLeft.y) / originHeight;
+        if (xScaleFactor > 1) {
+            xScaleFactor = 1;
+        }
+        if (yScaleFactor > 1) {
+            yScaleFactor = 1;
+        }
+        if (xPosFactor > 1) {
+            xPosFactor = 1;
+        }
+        if (xPosFactor < 0) {
+            xPosFactor = 0;
+        }
+        if (yPosFactor > 1) {
+            yPosFactor = 1;
+        }
+        if (yPosFactor < 0) {
+            yPosFactor = 0;
+        }
+
+        console.log("xScale factor", xScaleFactor);
+        console.log("yScale factor", yScaleFactor);
+        console.log("xPost factor", xPosFactor);
+        console.log("yPost factor", yPosFactor);
+
+        var widthPreview = deepzoom_map_preview.width * xScaleFactor;
+        var heightPreview = deepzoom_map_preview.height * yScaleFactor;
+        var xOffsetPreview = deepzoom_map_preview.width * xPosFactor;
+        var yOffsetPreview = deepzoom_map_preview.height * yPosFactor;
+
+        if (widthPreview + xOffsetPreview > deepzoom_map_preview.width) {
+            xOffsetPreview = deepzoom_map_preview.width - widthPreview;
+        }
+        if (heightPreview + yOffsetPreview > deepzoom_map_preview.height) {
+            yOffsetPreview = deepzoom_map_preview.height - heightPreview;
+        }
+
+        deepzoom_map_preview_focus_rect.width = widthPreview;
+        deepzoom_map_preview_focus_rect.height =heightPreview;
+        deepzoom_map_preview_focus_rect.x = xOffsetPreview;
+        deepzoom_map_preview_focus_rect.y = yOffsetPreview;
+
+    }
+
+    Rectangle {
+        id: deepzoom_map_preview
+        width: height * viewer.dzi_max_width / viewer.dzi_max_height
+        height: parent.height * 0.2
+        color: "white"
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.rightMargin: 10
+        anchors.topMargin: 10
+        border.width: 2
+        border.color: Material.color(Material.Grey, Material.Shade700)
+        z: parent.z + 2
+        Image {
+            asynchronous: true
+            fillMode: Image.PreserveAspectCrop
+            source: viewer.selected_file_thumbnail
+            width: parent.width - 2
+            height: parent.height - 2
+            sourceSize.width: 256
+            sourceSize.height: 256
+            anchors.centerIn: parent
+            z: parent.z - 1
+            BusyIndicator {
+                running: parent.status === Image.Loading
+                anchors.centerIn: parent
+            }
+        }
+        Rectangle {
+            id: deepzoom_map_preview_focus_rect
+            x: parent.width * 0.5
+            y: parent.height * 0.5
+            z: parent.z + 3
+            width: parent.width * 0.5
+            height: parent.height * 0.5
+            color: "transparent"
+            border.color: "red"
+            border.width: 2
+        }
+    }
     MapRectangle {
-        id: map_rect_region
+        id: deepzoom_map_rect_region
         border.width: 1
-        border.color: 'red'
+        border.color: Material.color(Material.Grey, Material.Shade300)
         color: 'transparent'
     }
     // MapRectangle {
@@ -73,12 +170,10 @@ Map {
         var origin = (1 << max_zoom_level) / 2;
         var topLeftCoordinate = tile2coordinate(origin, origin, max_zoom_level);
         var bottomRightCoordinate = tile2coordinate(origin + max_width, origin + max_height, max_zoom_level);
-        map_rect_region.topLeft = topLeftCoordinate;
-        map_rect_region.bottomRight = bottomRightCoordinate;
+        deepzoom_map_rect_region.topLeft = topLeftCoordinate;
+        deepzoom_map_rect_region.bottomRight = bottomRightCoordinate;
         console.log("Visible region before: ", deepzoom_map.visibleRegion.boundingGeoRectangle())
-        var r = QtPositioning.rectangle(topLeftCoordinate, bottomRightCoordinate)
-        console.log("Geo rectangle", r);
-        deepzoom_map.visibleRegion = r;
+        deepzoom_map.visibleRegion = QtPositioning.rectangle(topLeftCoordinate, bottomRightCoordinate);
         console.log("Visible region after: ", deepzoom_map.visibleRegion.boundingGeoRectangle())
     }
 
@@ -90,14 +185,8 @@ Map {
         return QtPositioning.coordinate(lat_deg, lon_deg);
     }
 
-    // Rectangle {
-    //     anchors.fill: parent
-    //     border.color: 'red'
-    //     border.width: 3
-    //     color: 'transparent'
-    // }
     Button {
-        text: qsTr("Fit to size")
+        text: qsTr("Fit to screen")
         anchors.bottom: parent.bottom
         anchors.right: parent.right
         onClicked: {

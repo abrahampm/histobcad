@@ -13,6 +13,7 @@ class DeepZoomViewer(QObject):
         self._selected_file_url = ""
         self._selected_file_name = ""
         self._selected_file_folder = ""
+        self._selected_file_thumbnail_url = ""
         self._last_selected_file_folder = ""
         self._selected_file_siblings = QStringListModel(self)
         self._supported_file_extensions = r'.tif$|.tiff$|.dcm$|.ndpi$|.vms$|.vmu$|.scn$|.mrxs$|.svslide$|.bif$'
@@ -46,6 +47,7 @@ class DeepZoomViewer(QObject):
         self._selected_file_url = self._server.get_slide_url(self._selected_file_name)
         self.on_selected_file.emit()
         self.reload.emit()
+        self.set_selected_file_thumbnail()
         self._detect_selected_file_siblings()
         print("Selected file: ", self._selected_file_url)
         print("Selected file folder: ", self._selected_file_folder)
@@ -74,7 +76,14 @@ class DeepZoomViewer(QObject):
         print(self._dzi_dimensions)
         self.set_dzi_min_zoom_level()
         self.set_dzi_max_zoom_level()
-    
+
+    def get_selected_file_thumbnail(self):
+        return self._selected_file_thumbnail_url
+
+    def set_selected_file_thumbnail(self):
+        self._selected_file_thumbnail_url = self._server.get_thumbnail_url(self._selected_file_name)
+        self.on_selected_file_thumbnail.emit()
+
     def get_dzi_max_width(self):
         return self._dzi_dimensions[-1][0]
 
@@ -101,12 +110,16 @@ class DeepZoomViewer(QObject):
     on_dzi_max_height = Signal()
     on_dzi_min_zoom_level = Signal()
     on_dzi_max_zoom_level = Signal()
+
     on_selected_file = Signal()
+    on_selected_file_thumbnail = Signal()
     on_selected_file_siblings = Signal()
 
     dzi_max_width = Property(int, get_dzi_max_width, notify=on_dzi_max_width)
     dzi_max_height = Property(int, get_dzi_max_height, notify=on_dzi_max_height)
     dzi_min_zoom_level = Property(int, get_dzi_min_zoom_level, set_dzi_min_zoom_level, notify=on_dzi_min_zoom_level)
     dzi_max_zoom_level = Property(int, get_dzi_max_zoom_level, set_dzi_max_zoom_level, notify=on_dzi_max_zoom_level)
+
     selected_file = Property(QUrl, get_selected_file, set_selected_file, notify=on_selected_file)
+    selected_file_thumbnail = Property(QUrl, get_selected_file_thumbnail, set_selected_file_thumbnail, notify=on_selected_file_thumbnail)
     selected_file_siblings = Property(QAbstractItemModel, get_selected_file_siblings, set_selected_file_siblings, notify=on_selected_file_siblings)

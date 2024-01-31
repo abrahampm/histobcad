@@ -118,9 +118,11 @@ class DeepZoomServer(QObject):
         except ValueError:
             # Invalid level or coordinates
             print("Invalid level or coordinates", level, col, row)
+            # Return blank background image
             tile = Image.new('RGB', (self._tile_size, self._tile_size), self._bg_color)
 
         if level < len(slide.level_tiles) and (col == slide.level_tiles[level][0] - 1 or row == slide.level_tiles[level][1] - 1):
+            # Create tile from blank background + border tile image
             bg = Image.new('RGB', (self._tile_size, self._tile_size), self._bg_color)
             bg.paste(tile, (0, 0))
             tile = bg
