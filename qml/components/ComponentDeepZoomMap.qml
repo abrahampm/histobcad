@@ -230,6 +230,8 @@ Map {
         text: qsTr("Fit to screen")
         anchors.bottom: parent.bottom
         anchors.right: parent.right
+        anchors.rightMargin: 10
+        anchors.bottomMargin: 5
         onClicked: {
             setVisibleRegion();
         }
