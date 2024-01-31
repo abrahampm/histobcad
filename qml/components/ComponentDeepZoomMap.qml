@@ -40,13 +40,129 @@ Map {
         setVisibleRegion();
     }
     onCenterChanged: {
+        setPreviewRegion();
+    }
+
+    MapRectangle {
+        id: deepZoomMapOriginRegion
+        border.width: 1
+        border.color: Material.color(Material.Grey, Material.Shade300)
+        color: 'transparent'
+    }
+
+    Rectangle {
+        id: deepZoomMapPreviewBox
+        width: height * viewer.dzi_max_width / viewer.dzi_max_height
+        height: parent.height * 0.2
+        color: "white"
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.rightMargin: 10
+        anchors.topMargin: 10
+        border.width: 2
+        border.color: Material.color(Material.Grey, Material.Shade700)
+        z: parent.z + 2
+        opacity: 0
+        Image {
+            asynchronous: true
+            fillMode: Image.PreserveAspectCrop
+            source: viewer.selected_file_thumbnail
+            width: parent.width - 4
+            height: parent.height - 4
+            sourceSize.width: 256
+            sourceSize.height: 256
+            anchors.centerIn: parent
+            z: parent.z - 1
+            BusyIndicator {
+                running: parent.status === Image.Loading
+                anchors.centerIn: parent
+            }
+        }
+        Rectangle {
+            id: deepZoomMapPreviewFocus
+            x: parent.width * 0.5
+            y: parent.height * 0.5
+            z: parent.z + 3
+            width: parent.width * 0.5
+            height: parent.height * 0.5
+            color: "transparent"
+            border.color: "red"
+            border.width: 2
+        }
+        PropertyAnimation {
+            id: previewFadeInAnimation
+            target: deepZoomMapPreviewBox
+            property: "opacity"
+            from: 0
+            to: 1
+            duration: 200 // 200 millisecond for fade in
+
+            running: false
+
+            onStopped: {
+                // Pause for 3 seconds before starting fade out
+                previewFadeOutTimer.start();
+            }
+        }
+        PropertyAnimation {
+            id: previewFadeOutAnimation
+            target: deepZoomMapPreviewBox
+            property: "opacity"
+            to: 0
+            duration: 200 // 200 millisecond for fade out
+            running: false
+        }
+        Timer {
+            id: previewFadeOutTimer
+            interval: 3000 // 3 seconds
+            onTriggered: {
+                previewFadeOutAnimation.start();
+            }
+        }
+    }
+    // MapRectangle {
+    //     id: map_rect_region2
+    //     border.width: 2
+    //     border.color: 'red'
+    //     topLeft: tile2coordinate(0,0, 11)
+    //     bottomRight: tile2coordinate(1,1, 11)
+    // }
+    // MapRectangle {
+    //     id: map_rect_region3
+    //     border.width: 2
+    //     border.color: 'green'
+    //     topLeft: tile2coordinate(0,0, 11)
+    //     bottomRight: tile2coordinate(5,5, 11)
+    // }
+    function setVisibleRegion() {
+        console.log("Min zoom level", viewer.dzi_min_zoom_level);
+        console.log("Max zoom level", viewer.dzi_max_zoom_level);
+        var max_zoom_level = viewer.dzi_max_zoom_level;
+        var max_width = viewer.dzi_max_width / 256;
+        var max_height = viewer.dzi_max_height / 256;
+        var origin = (1 << max_zoom_level) / 2;
+        var topLeftCoordinate = tile2coordinate(origin, origin, max_zoom_level);
+        var bottomRightCoordinate = tile2coordinate(origin + max_width, origin + max_height, max_zoom_level);
+        deepZoomMapOriginRegion.topLeft = topLeftCoordinate;
+        deepZoomMapOriginRegion.bottomRight = bottomRightCoordinate;
+        console.log("Visible region before: ", deepzoom_map.visibleRegion.boundingGeoRectangle())
+        deepzoom_map.visibleRegion = QtPositioning.rectangle(topLeftCoordinate, bottomRightCoordinate);
+        console.log("Visible region after: ", deepzoom_map.visibleRegion.boundingGeoRectangle())
+    }
+
+    function setPreviewRegion() {
+        if (deepZoomMapPreviewBox.opacity === 0) {
+            previewFadeInAnimation.start()
+        } else {
+            previewFadeOutTimer.restart();
+        }
         var currentVisibleRegionRect = deepzoom_map.visibleRegion.boundingGeoRectangle();
         var currentTopLeft = deepzoom_map.fromCoordinate(currentVisibleRegionRect.topLeft);
         var currentBottomRight = deepzoom_map.fromCoordinate(currentVisibleRegionRect.bottomRight);
         var currentWidth = currentBottomRight.x - currentTopLeft.x;
         var currentHeight = currentBottomRight.y - currentTopLeft.y;
-        var originTopLeft = deepzoom_map.fromCoordinate(deepzoom_map_rect_region.topLeft, false);
-        var originBottomRight = deepzoom_map.fromCoordinate(deepzoom_map_rect_region.bottomRight, false);
+        var originTopLeft = deepzoom_map.fromCoordinate(deepZoomMapOriginRegion.topLeft, false);
+        var originBottomRight = deepzoom_map.fromCoordinate(deepZoomMapOriginRegion.bottomRight, false);
         var originWidth = originBottomRight.x - originTopLeft.x;
         var originHeight = originBottomRight.y - originTopLeft.y;
 
@@ -83,98 +199,23 @@ Map {
         console.log("xPost factor", xPosFactor);
         console.log("yPost factor", yPosFactor);
 
-        var widthPreview = deepzoom_map_preview.width * xScaleFactor;
-        var heightPreview = deepzoom_map_preview.height * yScaleFactor;
-        var xOffsetPreview = deepzoom_map_preview.width * xPosFactor;
-        var yOffsetPreview = deepzoom_map_preview.height * yPosFactor;
+        var widthPreview = deepZoomMapPreviewBox.width * xScaleFactor;
+        var heightPreview = deepZoomMapPreviewBox.height * yScaleFactor;
+        var xOffsetPreview = deepZoomMapPreviewBox.width * xPosFactor;
+        var yOffsetPreview = deepZoomMapPreviewBox.height * yPosFactor;
 
-        if (widthPreview + xOffsetPreview > deepzoom_map_preview.width) {
-            xOffsetPreview = deepzoom_map_preview.width - widthPreview;
+        if (widthPreview + xOffsetPreview > deepZoomMapPreviewBox.width) {
+            xOffsetPreview = deepZoomMapPreviewBox.width - widthPreview;
         }
-        if (heightPreview + yOffsetPreview > deepzoom_map_preview.height) {
-            yOffsetPreview = deepzoom_map_preview.height - heightPreview;
+        if (heightPreview + yOffsetPreview > deepZoomMapPreviewBox.height) {
+            yOffsetPreview = deepZoomMapPreviewBox.height - heightPreview;
         }
 
-        deepzoom_map_preview_focus_rect.width = widthPreview;
-        deepzoom_map_preview_focus_rect.height =heightPreview;
-        deepzoom_map_preview_focus_rect.x = xOffsetPreview;
-        deepzoom_map_preview_focus_rect.y = yOffsetPreview;
+        deepZoomMapPreviewFocus.width = widthPreview;
+        deepZoomMapPreviewFocus.height =heightPreview;
+        deepZoomMapPreviewFocus.x = xOffsetPreview;
+        deepZoomMapPreviewFocus.y = yOffsetPreview;
 
-    }
-
-    Rectangle {
-        id: deepzoom_map_preview
-        width: height * viewer.dzi_max_width / viewer.dzi_max_height
-        height: parent.height * 0.2
-        color: "white"
-        anchors.right: parent.right
-        anchors.top: parent.top
-        anchors.rightMargin: 10
-        anchors.topMargin: 10
-        border.width: 2
-        border.color: Material.color(Material.Grey, Material.Shade700)
-        z: parent.z + 2
-        Image {
-            asynchronous: true
-            fillMode: Image.PreserveAspectCrop
-            source: viewer.selected_file_thumbnail
-            width: parent.width - 2
-            height: parent.height - 2
-            sourceSize.width: 256
-            sourceSize.height: 256
-            anchors.centerIn: parent
-            z: parent.z - 1
-            BusyIndicator {
-                running: parent.status === Image.Loading
-                anchors.centerIn: parent
-            }
-        }
-        Rectangle {
-            id: deepzoom_map_preview_focus_rect
-            x: parent.width * 0.5
-            y: parent.height * 0.5
-            z: parent.z + 3
-            width: parent.width * 0.5
-            height: parent.height * 0.5
-            color: "transparent"
-            border.color: "red"
-            border.width: 2
-        }
-    }
-    MapRectangle {
-        id: deepzoom_map_rect_region
-        border.width: 1
-        border.color: Material.color(Material.Grey, Material.Shade300)
-        color: 'transparent'
-    }
-    // MapRectangle {
-    //     id: map_rect_region2
-    //     border.width: 2
-    //     border.color: 'red'
-    //     topLeft: tile2coordinate(0,0, 11)
-    //     bottomRight: tile2coordinate(1,1, 11)
-    // }
-    // MapRectangle {
-    //     id: map_rect_region3
-    //     border.width: 2
-    //     border.color: 'green'
-    //     topLeft: tile2coordinate(0,0, 11)
-    //     bottomRight: tile2coordinate(5,5, 11)
-    // }
-    function setVisibleRegion() {
-        console.log("Min zoom level", viewer.dzi_min_zoom_level);
-        console.log("Max zoom level", viewer.dzi_max_zoom_level);
-        var max_zoom_level = viewer.dzi_max_zoom_level;
-        var max_width = viewer.dzi_max_width / 256;
-        var max_height = viewer.dzi_max_height / 256;
-        var origin = (1 << max_zoom_level) / 2;
-        var topLeftCoordinate = tile2coordinate(origin, origin, max_zoom_level);
-        var bottomRightCoordinate = tile2coordinate(origin + max_width, origin + max_height, max_zoom_level);
-        deepzoom_map_rect_region.topLeft = topLeftCoordinate;
-        deepzoom_map_rect_region.bottomRight = bottomRightCoordinate;
-        console.log("Visible region before: ", deepzoom_map.visibleRegion.boundingGeoRectangle())
-        deepzoom_map.visibleRegion = QtPositioning.rectangle(topLeftCoordinate, bottomRightCoordinate);
-        console.log("Visible region after: ", deepzoom_map.visibleRegion.boundingGeoRectangle())
     }
 
     function tile2coordinate(xtile, ytile, zoom) {
