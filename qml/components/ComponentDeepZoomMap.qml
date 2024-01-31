@@ -137,17 +137,17 @@ Map {
     function setVisibleRegion() {
         console.log("Min zoom level", viewer.dzi_min_zoom_level);
         console.log("Max zoom level", viewer.dzi_max_zoom_level);
-        var max_zoom_level = viewer.dzi_max_zoom_level;
-        var max_width = viewer.dzi_max_width / 256;
-        var max_height = viewer.dzi_max_height / 256;
-        var origin = (1 << max_zoom_level) / 2;
-        var topLeftCoordinate = tile2coordinate(origin, origin, max_zoom_level);
-        var bottomRightCoordinate = tile2coordinate(origin + max_width, origin + max_height, max_zoom_level);
+        var maxZoomLevel = viewer.dzi_max_zoom_level;
+        var maxWidth = viewer.dzi_max_width / 256;
+        var maxHeight = viewer.dzi_max_height / 256;
+        var origin = (1 << maxZoomLevel) / 2;
+        var topLeftCoordinate = tile2coordinate(origin, origin, maxZoomLevel);
+        var bottomRightCoordinate = tile2coordinate(origin + maxWidth, origin + maxHeight, maxZoomLevel);
         deepZoomMapOriginRegion.topLeft = topLeftCoordinate;
         deepZoomMapOriginRegion.bottomRight = bottomRightCoordinate;
-        console.log("Visible region before: ", deepzoom_map.visibleRegion.boundingGeoRectangle())
+        // console.log("Visible region before: ", deepzoom_map.visibleRegion.boundingGeoRectangle())
         deepzoom_map.visibleRegion = QtPositioning.rectangle(topLeftCoordinate, bottomRightCoordinate);
-        console.log("Visible region after: ", deepzoom_map.visibleRegion.boundingGeoRectangle())
+        // console.log("Visible region after: ", deepzoom_map.visibleRegion.boundingGeoRectangle())
     }
 
     function setPreviewRegion() {
@@ -166,10 +166,10 @@ Map {
         var originWidth = originBottomRight.x - originTopLeft.x;
         var originHeight = originBottomRight.y - originTopLeft.y;
 
-        console.log("Current visible region top left:", currentTopLeft);
-        console.log("Current visible region bottom right:", currentBottomRight);
-        console.log("Origin visible region top left:", originTopLeft);
-        console.log("Origin visible region bottom right:", originBottomRight);
+        // console.log("Current visible region top left:", currentTopLeft);
+        // console.log("Current visible region bottom right:", currentBottomRight);
+        // console.log("Origin visible region top left:", originTopLeft);
+        // console.log("Origin visible region bottom right:", originBottomRight);
 
         var xScaleFactor = currentWidth / originWidth;
         var yScaleFactor = currentHeight / originHeight;
@@ -194,10 +194,10 @@ Map {
             yPosFactor = 0;
         }
 
-        console.log("xScale factor", xScaleFactor);
-        console.log("yScale factor", yScaleFactor);
-        console.log("xPost factor", xPosFactor);
-        console.log("yPost factor", yPosFactor);
+        // console.log("xScale factor", xScaleFactor);
+        // console.log("yScale factor", yScaleFactor);
+        // console.log("xPost factor", xPosFactor);
+        // console.log("yPost factor", yPosFactor);
 
         var widthPreview = deepZoomMapPreviewBox.width * xScaleFactor;
         var heightPreview = deepZoomMapPreviewBox.height * yScaleFactor;
