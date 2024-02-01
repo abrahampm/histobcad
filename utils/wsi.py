@@ -1,5 +1,5 @@
 from numpy import zeros, ndarray
-from matplotlib.pyplot import cm
+# from matplotlib.pyplot import cm
 from skimage.filters import gaussian
 
 
@@ -31,10 +31,11 @@ def split_image(image: ndarray, tile_width=50, tile_height=50) -> ndarray:
 
 
 def create_heatmap(mask: ndarray, sigma=15):
-    mask = gaussian(mask, sigma=sigma)
-    # TODO Use another colormap to exclude matplotlib from dependencies
-    cmap = cm.get_cmap('jet')
-    rgba_mask = cmap(mask)
-    rgba_mask[..., -1] = mask
-    rgba_mask *= 255
-    return rgba_mask.astype('uint8')
+    pass
+#     mask = gaussian(mask, sigma=sigma)
+#     # TODO Use another colormap to exclude matplotlib from dependencies
+#     cmap = cm.get_cmap('jet')
+#     rgba_mask = cmap(mask)
+#     rgba_mask[..., -1] = mask
+#     rgba_mask *= 255
+#     return rgba_mask.astype('uint8')
