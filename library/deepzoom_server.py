@@ -3,7 +3,14 @@ from io import BytesIO
 
 from PySide2.QtCore import QObject, Slot
 from flask import Flask, abort, make_response
-from openslide import OpenSlideError
+
+OPENSLIDE_PATH = r'static\openslide-win64\bin'
+if hasattr(os, 'add_dll_directory'):
+    # Windows
+    with os.add_dll_directory(os.path.realpath(os.path.join(os.getcwd(), OPENSLIDE_PATH))):
+        from openslide import OpenSlideError
+else:
+    from openslide import OpenSlideError
 
 from library.deepzoom_utils import _SlideCache
 

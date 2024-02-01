@@ -10,10 +10,10 @@ from io import BytesIO
 from threading import Lock
 from PIL import ImageCms
 
-OPENSLIDE_PATH = r'.\static\openslide-win64\bin'
+OPENSLIDE_PATH = r'static\openslide-win64\bin'
 if hasattr(os, 'add_dll_directory'):
     # Windows
-    with os.add_dll_directory(OPENSLIDE_PATH):
+    with os.add_dll_directory(os.path.realpath(os.path.join(os.getcwd(), OPENSLIDE_PATH))):
         import openslide
 else:
     import openslide
