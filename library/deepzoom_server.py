@@ -1,6 +1,4 @@
 import os
-import signal
-import sys
 from io import BytesIO
 
 from PySide2.QtCore import QObject, Slot

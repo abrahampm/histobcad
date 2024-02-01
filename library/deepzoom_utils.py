@@ -8,9 +8,16 @@ import zlib
 from collections import OrderedDict
 from io import BytesIO
 from threading import Lock
-
-import openslide
 from PIL import ImageCms
+
+OPENSLIDE_PATH = r'.\static\openslide-win64\bin'
+if hasattr(os, 'add_dll_directory'):
+    # Windows
+    with os.add_dll_directory(OPENSLIDE_PATH):
+        import openslide
+else:
+    import openslide
+
 from openslide import OpenSlide, OpenSlideVersionError
 from openslide.deepzoom import DeepZoomGenerator
 
