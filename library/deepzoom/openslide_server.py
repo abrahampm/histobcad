@@ -41,15 +41,15 @@ class OpenSlideServer(TileServer):
         path = os.path.abspath(os.path.join(self._basedir, file_name))
         if not path.startswith(self._basedir + os.path.sep):
             # Directory traversal
-            raise ValueError('Path must start with base dir')
+            raise ValueError('Invalid slide path: {}'.format(path))
         if not os.path.exists(path):
-            raise ValueError('Path does not exist')
+            raise ValueError('Slide does not exist {}'.format(path))
         try:
             slide = self._cache.get(path)
             slide.filename = os.path.basename(path)
             return slide
-        except openslide.OpenSlideError:
-            raise ValueError("Slide does not exist")
+        except openslide.OpenSlideError as err:
+            raise ValueError("Error opening slide {}".format(err))
 
     def __get_tile__(self, file_name: str, level: int, col: int, row: int, img_format: str):
         slide = self.__get_slide__(file_name)
