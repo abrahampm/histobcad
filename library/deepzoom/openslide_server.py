@@ -61,8 +61,6 @@ class OpenSlideServer(TileServer):
         try:
             tile = slide.get_tile(level, (col, row))
         except ValueError:
-            # Invalid level or coordinates
-            print("Invalid level or coordinates", level, col, row)
             # Return blank background image
             tile = self.__create_bg_tile__()
 
