@@ -1,4 +1,5 @@
 import uvicorn
+import asyncio
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import Response
 from PySide2.QtCore import QObject, Slot
@@ -15,6 +16,8 @@ class DeepZoomServer(QObject):
         self._tile_server = tile_server
         # Create and configure app
         self._app = FastAPI()
+        self._app_config = uvicorn.Config(app=self._app, host=self._host, port=self._port)
+        self._http_server = uvicorn.Server(self._app_config)
         self.__register_routes__()
 
     def __register_routes__(self):
@@ -46,12 +49,12 @@ class DeepZoomServer(QObject):
     @Slot()
     def run(self):
         print('Starting deepzoom server')
-        uvicorn.run(self._app, host=self._host, port=self._port)
+        self._http_server.run()
 
     @Slot()
     def stop(self):
         print('Stopping deepzoom server')
-        pass
+        self._http_server.should_exit = True
 
     def get_base_url(self) -> str:
         return self._base_url
