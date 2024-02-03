@@ -8,8 +8,9 @@ from PySide2.QtGui import QGuiApplication
 from PySide2.QtQml import QQmlApplicationEngine
 
 from library.auth_service import AuthService
-from library.deepzoom_server import DeepZoomServer
-from library.deepzoom_viewer import DeepZoomViewer
+from library.deepzoom.deepzoom_server import DeepZoomServer
+from library.deepzoom.deepzoom_viewer import DeepZoomViewer
+from library.deepzoom.openslide_server import OpenSlideServer
 from library.translator import Translator
 from library.viewer import Viewer
 from library.viewer_image_provider import ViewerImageProvider
@@ -32,6 +33,8 @@ DEEPZOOM_PORT = 8989
 
 
 if __name__ == '__main__':
+    base_path = os.path.dirname(__file__)
+
     requests_session = requests.Session()
     requests_thread = QThread()
     requests_thread.setObjectName("HistoBCAD_Requests")
@@ -54,7 +57,8 @@ if __name__ == '__main__':
 
     deepzoom_server_thread = QThread()
     deepzoom_server_thread.setObjectName("HistoBCAD_DeepZoom")
-    deepzoom_server = DeepZoomServer(DEEPZOOM_HOST, DEEPZOOM_PORT)
+    openslide_server = OpenSlideServer(base_path)
+    deepzoom_server = DeepZoomServer(DEEPZOOM_HOST, DEEPZOOM_PORT, openslide_server)
     deepzoom_viewer = DeepZoomViewer(server=deepzoom_server)
     deepzoom_server.moveToThread(deepzoom_server_thread)
     deepzoom_server_thread.started.connect(deepzoom_server.run)

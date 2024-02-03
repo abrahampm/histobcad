@@ -2,9 +2,8 @@ import os
 import re
 
 from PySide2.QtCore import QObject, QStringListModel, QUrl, Signal, Property, Slot, QAbstractItemModel
-from PySide2.QtPositioning import QGeoCoordinate
 
-from library.deepzoom_server import DeepZoomServer
+from library.deepzoom.deepzoom_server import DeepZoomServer
 
 
 class DeepZoomViewer(QObject):
@@ -16,12 +15,13 @@ class DeepZoomViewer(QObject):
         self._selected_file_thumbnail_url = ""
         self._last_selected_file_folder = ""
         self._selected_file_siblings = QStringListModel(self)
-        self._supported_file_extensions = r'.tif$|.tiff$|.dcm$|.ndpi$|.vms$|.vmu$|.scn$|.mrxs$|.svslide$|.bif$'
+        self._supported_file_types = ""
         self._server = server
         self._dzi_levels = tuple()
         self._dzi_dimensions = tuple()
         self._dzi_min_zoom_level = 0
         self._dzi_max_zoom_level = 0
+        self.set_supported_file_types()
 
     def get_selected_file(self):
         return self._selected_file_url
@@ -63,7 +63,7 @@ class DeepZoomViewer(QObject):
             temp_siblings = []
             with os.scandir(self._selected_file_folder) as d:
                 for entry in d:
-                    if entry.is_file() and re.search(self._supported_file_extensions, entry.name):
+                    if entry.is_file() and re.search(self._supported_file_types, entry.name):
                         slide_path = self._server.get_thumbnail_url(entry.name)
                         temp_siblings.append(slide_path)
             temp_siblings = sorted(temp_siblings)
@@ -104,6 +104,12 @@ class DeepZoomViewer(QObject):
         self._dzi_max_zoom_level = len(self._dzi_levels) - 1
         self.on_dzi_max_zoom_level.emit()
 
+    def get_supported_file_types(self):
+        return self._supported_file_types
+
+    def set_supported_file_types(self):
+        types = self._server.get_supported_file_types()
+        self._supported_file_types = '.' + '$|.'.join(types) + '$'
 
     reload = Signal()
     on_dzi_max_width = Signal()
@@ -114,6 +120,7 @@ class DeepZoomViewer(QObject):
     on_selected_file = Signal()
     on_selected_file_thumbnail = Signal()
     on_selected_file_siblings = Signal()
+    on_supported_file_types = Signal()
 
     dzi_max_width = Property(int, get_dzi_max_width, notify=on_dzi_max_width)
     dzi_max_height = Property(int, get_dzi_max_height, notify=on_dzi_max_height)
@@ -123,3 +130,4 @@ class DeepZoomViewer(QObject):
     selected_file = Property(QUrl, get_selected_file, set_selected_file, notify=on_selected_file)
     selected_file_thumbnail = Property(QUrl, get_selected_file_thumbnail, set_selected_file_thumbnail, notify=on_selected_file_thumbnail)
     selected_file_siblings = Property(QAbstractItemModel, get_selected_file_siblings, set_selected_file_siblings, notify=on_selected_file_siblings)
+    supported_file_types = Property(str, get_supported_file_types, notify=on_supported_file_types)

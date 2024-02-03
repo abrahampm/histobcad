@@ -1,26 +1,30 @@
+import base64
+import os
+import zlib
+
+from collections import OrderedDict
+from io import BytesIO
+from threading import Lock
+
+from PIL import ImageCms
+
+
+OPENSLIDE_WINDOWS_PATH = r'static\openslide-win64\bin'
+if hasattr(os, 'add_dll_directory'):
+    # Windows
+    OPENSLIDE_WINDOWS_PATH = os.path.realpath(os.path.join(os.getcwd(), OPENSLIDE_WINDOWS_PATH))
+    with os.add_dll_directory(OPENSLIDE_WINDOWS_PATH):
+        import openslide
+        from openslide.deepzoom import DeepZoomGenerator
+else:
+    import openslide
+    from openslide.deepzoom import DeepZoomGenerator
+
+
 # Optimized sRGB v2 profile, CC0-1.0 license
 # https://github.com/saucecontrol/Compact-ICC-Profiles/blob/bdd84663/profiles/sRGB-v2-micro.icc
 # ImageCms.createProfile() generates a v4 profile and Firefox has problems
 # with those: https://littlecms.com/blog/2020/09/09/browser-check/
-import base64
-import os
-import zlib
-from collections import OrderedDict
-from io import BytesIO
-from threading import Lock
-from PIL import ImageCms
-
-OPENSLIDE_PATH = r'static\openslide-win64\bin'
-if hasattr(os, 'add_dll_directory'):
-    # Windows
-    with os.add_dll_directory(os.path.realpath(os.path.join(os.getcwd(), OPENSLIDE_PATH))):
-        import openslide
-else:
-    import openslide
-
-from openslide import OpenSlide, OpenSlideVersionError
-from openslide.deepzoom import DeepZoomGenerator
-
 SRGB_PROFILE_BYTES = zlib.decompress(
     base64.b64decode(
         'eNpjYGA8kZOcW8wkwMCQm1dSFOTupBARGaXA/oiBmUGEgZOBj0E2Mbm4wDfYLYQBCIoT'
@@ -36,16 +40,19 @@ SRGB_PROFILE = ImageCms.getOpenProfile(BytesIO(SRGB_PROFILE_BYTES))
 
 
 class _SlideCache:
-    def __init__(self, cache_size, tile_cache_mb, dz_opts, color_mode):
+    def __init__(self, cache_size, tile_cache_mb, tile_size, overlap, limit_bounds, color_mode):
         self.cache_size = cache_size
-        self.dz_opts = dz_opts
-        self.color_mode = color_mode
+        self._tile_cache_mb = tile_cache_mb
+        self._tile_size = tile_size
+        self._overlap = overlap
+        self._limit_bounds = limit_bounds
+        self._color_mode = color_mode
         self._lock = Lock()
         self._cache = OrderedDict()
         # Share a single tile cache among all slide handles, if supported
         try:
             self._tile_cache = openslide.OpenSlideCache(tile_cache_mb * 1024 * 1024)
-        except OpenSlideVersionError:
+        except openslide.OpenSlideVersionError:
             self._tile_cache = None
 
     def get(self, path):
@@ -56,10 +63,10 @@ class _SlideCache:
                 self._cache[path] = slide
                 return slide
 
-        osr = OpenSlide(path)
+        osr = openslide.OpenSlide(path)
         if self._tile_cache is not None:
             osr.set_cache(self._tile_cache)
-        slide = DeepZoomGenerator(osr, **self.dz_opts)
+        slide = DeepZoomGenerator(osr, self._tile_size, self._overlap, self._limit_bounds)
         try:
             mpp_x = osr.properties[openslide.PROPERTY_NAME_MPP_X]
             mpp_y = osr.properties[openslide.PROPERTY_NAME_MPP_Y]
@@ -78,7 +85,7 @@ class _SlideCache:
     def _get_transform(self, image):
         if image.color_profile is None:
             return lambda img: None
-        mode = self.color_mode
+        mode = self._color_mode
         if mode == 'ignore':
             # drop ICC profile from tiles
             return lambda img: img.info.pop('icc_profile')
@@ -127,7 +134,7 @@ class _Directory:
                 cur_dir = _Directory(basedir, cur_relpath)
                 if cur_dir.children:
                     self.children.append(cur_dir)
-            elif OpenSlide.detect_format(cur_path):
+            elif openslide.OpenSlide.detect_format(cur_path):
                 self.children.append(_SlideFile(cur_relpath))
 
 
