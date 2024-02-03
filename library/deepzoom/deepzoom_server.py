@@ -1,5 +1,4 @@
 import uvicorn
-import asyncio
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import Response
 from PySide2.QtCore import QObject, Slot
