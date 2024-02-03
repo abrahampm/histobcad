@@ -5,7 +5,7 @@ class TileServer:
     def get_tile(self, file_id: str, level: int, col: int, row: int, img_format: str) -> BytesIO:
         raise NotImplementedError
 
-    def get_thumbnail(self, file_id: str, img_format: str) -> BytesIO:
+    def get_thumbnail(self, file_id: str, width: int, height: int, img_format: str) -> BytesIO:
         raise NotImplementedError
 
     def get_dimensions(self, file_id: str) -> tuple:

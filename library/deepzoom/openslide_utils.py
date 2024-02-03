@@ -39,6 +39,14 @@ SRGB_PROFILE_BYTES = zlib.decompress(
 SRGB_PROFILE = ImageCms.getOpenProfile(BytesIO(SRGB_PROFILE_BYTES))
 
 
+class _DeepZoomGenerator(DeepZoomGenerator):
+    def __init__(self, osr, tile_size=254, overlap=1, limit_bounds=False):
+        super().__init__(osr, tile_size, overlap, limit_bounds)
+
+    def get_thumbnail(self, size):
+        return self._osr.get_thumbnail(size)
+
+
 class _SlideCache:
     def __init__(self, cache_size, tile_cache_mb, tile_size, overlap, limit_bounds, color_mode):
         self.cache_size = cache_size
@@ -66,7 +74,7 @@ class _SlideCache:
         osr = openslide.OpenSlide(path)
         if self._tile_cache is not None:
             osr.set_cache(self._tile_cache)
-        slide = DeepZoomGenerator(osr, self._tile_size, self._overlap, self._limit_bounds)
+        slide = _DeepZoomGenerator(osr, self._tile_size, self._overlap, self._limit_bounds)
         try:
             mpp_x = osr.properties[openslide.PROPERTY_NAME_MPP_X]
             mpp_y = osr.properties[openslide.PROPERTY_NAME_MPP_Y]

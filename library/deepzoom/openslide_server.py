@@ -95,8 +95,11 @@ class OpenSlideServer(TileServer):
     def get_supported_file_types(self):
         return self._supported_file_extensions
 
-    def get_thumbnail(self, file_name: str, img_format: str):
-        return self.__get_tile__(file_name, 9, 0, 0, img_format)
+    def get_thumbnail(self, file_name: str, max_width: int, max_height: int, img_format: str):
+        thumb = self.__get_slide__(file_name).get_thumbnail((max_width, max_height))
+        buf = BytesIO()
+        thumb.save(buf, format=img_format)
+        return buf
 
     def get_tile(self, file_name: str, level: int, col: int, row: int, img_format: str):
         return self.__get_tile__(file_name, level, col, row, img_format)

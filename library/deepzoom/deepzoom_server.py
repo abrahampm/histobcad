@@ -22,15 +22,16 @@ class DeepZoomServer(QObject):
     def __register_routes__(self):
         @self._app.get('/{path}/thumbnail')
         def get_thumbnail(path: str):
-            return self.__get_thumbnail__(path, 'png')
+            return self.__get_thumbnail__(path)
 
         @self._app.get('/{path}/tiles/{level}/{col}/{row}.{img_format}')
         def get_tile(path: str, level: int, col: int, row: int, img_format: str):
             return self.__get_tile__(path, level, col, row, img_format)
 
-    def __get_thumbnail__(self, path, img_format):
+    def __get_thumbnail__(self, path):
+        img_format = 'png'
         try:
-            buf = self._tile_server.get_thumbnail(path, img_format)
+            buf = self._tile_server.get_thumbnail(path, 512, 512, img_format)
         except ValueError as err:
             raise HTTPException(status_code=500, detail=str(err))
         return Response(content=buf.getvalue(), media_type="image/" + img_format)
