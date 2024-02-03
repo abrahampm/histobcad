@@ -51,7 +51,7 @@ class OpenSlideServer(TileServer):
         except openslide.OpenSlideError as err:
             raise ValueError("Error opening slide {}".format(err))
 
-    def __get_tile__(self, file_name: str, level: int, col: int, row: int, img_format: str):
+    def __get_tile__(self, file_name: str, level: int, col: int, row: int, img_format: str) -> BytesIO:
         slide = self.__get_slide__(file_name)
         format = img_format.lower()
         if format != 'jpg' and format != 'png':
