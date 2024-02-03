@@ -179,8 +179,8 @@ ApplicationWindow {
         orientation: Qt.Horizontal
 
         Components.ComponentImageListPanel {
-            SplitView.minimumWidth: parent.width*0.1
-            SplitView.preferredWidth: parent.width * 0.15
+            SplitView.minimumWidth: parent.width*0.05
+            SplitView.preferredWidth: parent.width * 0.08
             SplitView.maximumWidth: parent.width * 0.2
         }
 
