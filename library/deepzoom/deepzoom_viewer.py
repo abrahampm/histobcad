@@ -112,7 +112,11 @@ class DeepZoomViewer(QObject):
         self._supported_file_extensions = self._server.get_supported_file_types()
         self.on_supported_file_extensions.emit()
 
+    def get_tile_size(self):
+        return self._server.get_tile_dimensions()[0]
+
     reload = Signal()
+    on_tile_size = Signal()
     on_dzi_max_width = Signal()
     on_dzi_max_height = Signal()
     on_dzi_min_zoom_level = Signal()
@@ -123,6 +127,7 @@ class DeepZoomViewer(QObject):
     on_selected_file_siblings = Signal()
     on_supported_file_extensions = Signal()
 
+    dzi_tile_size = Property(int, get_tile_size, notify=on_tile_size)
     dzi_max_width = Property(int, get_dzi_max_width, notify=on_dzi_max_width)
     dzi_max_height = Property(int, get_dzi_max_height, notify=on_dzi_max_height)
     dzi_min_zoom_level = Property(int, get_dzi_min_zoom_level, set_dzi_min_zoom_level, notify=on_dzi_min_zoom_level)

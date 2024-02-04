@@ -95,6 +95,9 @@ class OpenSlideServer(TileServer):
     def get_supported_file_types(self):
         return self._supported_file_extensions
 
+    def get_tile_dimensions(self) -> tuple:
+        return self._tile_size, self._tile_size
+
     def get_thumbnail(self, file_name: str, max_width: int, max_height: int, img_format: str):
         thumb = self.__get_slide__(file_name).get_thumbnail((max_width, max_height))
         buf = BytesIO()

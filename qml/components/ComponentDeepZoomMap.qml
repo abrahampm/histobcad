@@ -166,8 +166,8 @@ Map {
         console.log("Min zoom level", viewer.dzi_min_zoom_level);
         console.log("Max zoom level", viewer.dzi_max_zoom_level);
         var maxZoomLevel = viewer.dzi_max_zoom_level;
-        var maxWidth = viewer.dzi_max_width / 256;
-        var maxHeight = viewer.dzi_max_height / 256;
+        var maxWidth = viewer.dzi_max_width / viewer.dzi_tile_size;
+        var maxHeight = viewer.dzi_max_height / viewer.dzi_tile_size;
         var origin = (1 << maxZoomLevel) / 2;
         var topLeftCoordinate = tile2coordinate(origin, origin, maxZoomLevel);
         var bottomRightCoordinate = tile2coordinate(origin + maxWidth, origin + maxHeight, maxZoomLevel);

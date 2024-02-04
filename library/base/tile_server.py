@@ -17,6 +17,9 @@ class TileServer:
     def get_levels(self, file_id: str) -> tuple:
         raise NotImplementedError
 
+    def get_tile_dimensions(self) -> tuple:
+        raise NotImplementedError
+
     def set_base_path(self, file_id: str):
         raise NotImplementedError
 

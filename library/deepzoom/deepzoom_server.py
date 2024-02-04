@@ -76,3 +76,6 @@ class DeepZoomServer(QObject):
 
     def get_level_dimensions(self, file_name: str) -> tuple:
         return self._tile_server.get_dimensions(file_name)
+
+    def get_tile_dimensions(self) -> tuple:
+        return self._tile_server.get_tile_dimensions()
