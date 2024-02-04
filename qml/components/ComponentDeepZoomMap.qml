@@ -78,6 +78,29 @@ Map {
                 anchors.centerIn: parent
             }
         }
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {
+                var previewX = mouseX - deepZoomMapPreviewNavigator.width / 2;
+                var previewY = mouseY - deepZoomMapPreviewNavigator.height / 2;
+                if (previewX < 0) {
+                    previewX = 0
+                }
+                if (previewX > deepZoomMapPreview.width) {
+                    previewX = deepZoomMapPreview.width;
+                }
+                if (previewY < 0) {
+                    previewY = 0
+                }
+                if (previewY > deepZoomMapPreview.height) {
+                    previewY = deepZoomMapPreview.height;
+                }
+
+                deepZoomMapPreviewNavigator.x = previewX;
+                deepZoomMapPreviewNavigator.y = previewY;
+                setVisibleRegion();
+            }
+        }
         Rectangle {
             id: deepZoomMapPreviewNavigator
             x: parent.width * 0.5
@@ -103,7 +126,6 @@ Map {
 
                 onPositionChanged: {
                     if (drag.active) {
-                        previewFadeOutTimer.restart()
                         setVisibleRegion();
                     }
                 }
@@ -157,12 +179,12 @@ Map {
     }
 
     function setVisibleRegion() {
+        previewFadeOutTimer.restart()
         var origin = deepZoomMap.fromCoordinate(deepZoomMapOriginRegion.topLeft, false);
         var previewCenterX = deepZoomMapPreviewNavigator.x + deepZoomMapPreviewNavigator.width / 2;
         var previewCenterY = deepZoomMapPreviewNavigator.y + deepZoomMapPreviewNavigator.height / 2;
         var currentCenterX = deepZoomMapOriginRegion.width * (previewCenterX / deepZoomMapPreview.width);
         var currentCenterY = deepZoomMapOriginRegion.height * (previewCenterY / deepZoomMapPreview.height);
-
         var center = Qt.point(origin.x + currentCenterX, origin.y + currentCenterY);
 
         deepZoomMap.center = deepZoomMap.toCoordinate(center, false);
