@@ -7,7 +7,7 @@ import QtPositioning 5.15
 
 
 Map {
-    id: deepzoom_map
+    id: deepZoomMap
     anchors.fill: parent
 
     plugin: Plugin {
@@ -37,7 +37,7 @@ Map {
     //center: QtPositioning.coordinate(90, 180)
     activeMapType: supportedMapTypes[supportedMapTypes.length - 1]
     onMapReadyChanged: {
-        setVisibleRegion();
+        fitToViewPort();
     }
     onCenterChanged: {
         setPreviewRegion();
@@ -51,7 +51,7 @@ Map {
     }
 
     Rectangle {
-        id: deepZoomMapPreviewBox
+        id: deepZoomMapPreview
         width: height * viewer.dzi_max_width / viewer.dzi_max_height
         height: parent.height * 0.2
         color: "white"
@@ -79,7 +79,7 @@ Map {
             }
         }
         Rectangle {
-            id: deepZoomMapPreviewFocus
+            id: deepZoomMapPreviewNavigator
             x: parent.width * 0.5
             y: parent.height * 0.5
             z: parent.z + 3
@@ -88,10 +88,30 @@ Map {
             color: "transparent"
             border.color: "red"
             border.width: 2
+            MouseArea {
+                id: deepZoomMapPreviewNavigatorArea
+                anchors.fill: parent
+                drag {
+                    target: deepZoomMapPreviewNavigator
+                    axis: Drag.XAndYAxis
+                    minimumX: 0
+                    minimumY: 0
+                    maximumX: deepZoomMapPreview.width - deepZoomMapPreviewNavigator.width
+                    maximumY: deepZoomMapPreview.height - deepZoomMapPreviewNavigator.height
+                }
+                cursorShape: Qt.PointingHandCursor
+
+                onPositionChanged: {
+                    if (drag.active) {
+                        previewFadeOutTimer.restart()
+                        setVisibleRegion();
+                    }
+                }
+            }
         }
         PropertyAnimation {
             id: previewFadeInAnimation
-            target: deepZoomMapPreviewBox
+            target: deepZoomMapPreview
             property: "opacity"
             from: 0
             to: 1
@@ -106,7 +126,7 @@ Map {
         }
         PropertyAnimation {
             id: previewFadeOutAnimation
-            target: deepZoomMapPreviewBox
+            target: deepZoomMapPreview
             property: "opacity"
             to: 0
             duration: 200 // 200 millisecond for fade out
@@ -120,7 +140,7 @@ Map {
             }
         }
     }
-    function setVisibleRegion() {
+    function fitToViewPort() {
         console.log("Min zoom level", viewer.dzi_min_zoom_level);
         console.log("Max zoom level", viewer.dzi_max_zoom_level);
         var maxZoomLevel = viewer.dzi_max_zoom_level;
@@ -131,24 +151,40 @@ Map {
         var bottomRightCoordinate = tile2coordinate(origin + maxWidth, origin + maxHeight, maxZoomLevel);
         deepZoomMapOriginRegion.topLeft = topLeftCoordinate;
         deepZoomMapOriginRegion.bottomRight = bottomRightCoordinate;
-        // console.log("Visible region before: ", deepzoom_map.visibleRegion.boundingGeoRectangle())
-        deepzoom_map.visibleRegion = QtPositioning.rectangle(topLeftCoordinate, bottomRightCoordinate);
-        // console.log("Visible region after: ", deepzoom_map.visibleRegion.boundingGeoRectangle())
+        // console.log("Visible region before: ", deepZoomMap.visibleRegion.boundingGeoRectangle())
+        deepZoomMap.visibleRegion = QtPositioning.rectangle(topLeftCoordinate, bottomRightCoordinate);
+        // console.log("Visible region after: ", deepZoomMap.visibleRegion.boundingGeoRectangle())
+    }
+
+    function setVisibleRegion() {
+        var origin = deepZoomMap.fromCoordinate(deepZoomMapOriginRegion.topLeft, false);
+        var previewCenterX = deepZoomMapPreviewNavigator.x + deepZoomMapPreviewNavigator.width / 2;
+        var previewCenterY = deepZoomMapPreviewNavigator.y + deepZoomMapPreviewNavigator.height / 2;
+        var currentCenterX = deepZoomMapOriginRegion.width * (previewCenterX / deepZoomMapPreview.width);
+        var currentCenterY = deepZoomMapOriginRegion.height * (previewCenterY / deepZoomMapPreview.height);
+
+        var center = Qt.point(origin.x + currentCenterX, origin.y + currentCenterY);
+
+        deepZoomMap.center = deepZoomMap.toCoordinate(center, false);
     }
 
     function setPreviewRegion() {
-        if (deepZoomMapPreviewBox.opacity === 0) {
+        // Function to adjust the deepZoomMapPreviewNavigator of deepZoomMapPreview while navigating
+        if (deepZoomMapPreviewNavigatorArea.drag.active) {
+            return;
+        }
+        if (deepZoomMapPreview.opacity === 0) {
             previewFadeInAnimation.start()
         } else {
             previewFadeOutTimer.restart();
         }
-        var currentVisibleRegionRect = deepzoom_map.visibleRegion.boundingGeoRectangle();
-        var currentTopLeft = deepzoom_map.fromCoordinate(currentVisibleRegionRect.topLeft);
-        var currentBottomRight = deepzoom_map.fromCoordinate(currentVisibleRegionRect.bottomRight);
+        var currentVisibleRegionRect = deepZoomMap.visibleRegion.boundingGeoRectangle();
+        var currentTopLeft = deepZoomMap.fromCoordinate(currentVisibleRegionRect.topLeft);
+        var currentBottomRight = deepZoomMap.fromCoordinate(currentVisibleRegionRect.bottomRight);
         var currentWidth = currentBottomRight.x - currentTopLeft.x;
         var currentHeight = currentBottomRight.y - currentTopLeft.y;
-        var originTopLeft = deepzoom_map.fromCoordinate(deepZoomMapOriginRegion.topLeft, false);
-        var originBottomRight = deepzoom_map.fromCoordinate(deepZoomMapOriginRegion.bottomRight, false);
+        var originTopLeft = deepZoomMap.fromCoordinate(deepZoomMapOriginRegion.topLeft, false);
+        var originBottomRight = deepZoomMap.fromCoordinate(deepZoomMapOriginRegion.bottomRight, false);
         var originWidth = originBottomRight.x - originTopLeft.x;
         var originHeight = originBottomRight.y - originTopLeft.y;
 
@@ -185,23 +221,22 @@ Map {
         // console.log("xPost factor", xPosFactor);
         // console.log("yPost factor", yPosFactor);
 
-        var widthPreview = deepZoomMapPreviewBox.width * xScaleFactor;
-        var heightPreview = deepZoomMapPreviewBox.height * yScaleFactor;
-        var xOffsetPreview = deepZoomMapPreviewBox.width * xPosFactor;
-        var yOffsetPreview = deepZoomMapPreviewBox.height * yPosFactor;
+        var widthPreview = deepZoomMapPreview.width * xScaleFactor;
+        var heightPreview = deepZoomMapPreview.height * yScaleFactor;
+        var xOffsetPreview = deepZoomMapPreview.width * xPosFactor;
+        var yOffsetPreview = deepZoomMapPreview.height * yPosFactor;
 
-        if (widthPreview + xOffsetPreview > deepZoomMapPreviewBox.width) {
-            xOffsetPreview = deepZoomMapPreviewBox.width - widthPreview;
+        if (widthPreview + xOffsetPreview > deepZoomMapPreview.width) {
+            xOffsetPreview = deepZoomMapPreview.width - widthPreview;
         }
-        if (heightPreview + yOffsetPreview > deepZoomMapPreviewBox.height) {
-            yOffsetPreview = deepZoomMapPreviewBox.height - heightPreview;
+        if (heightPreview + yOffsetPreview > deepZoomMapPreview.height) {
+            yOffsetPreview = deepZoomMapPreview.height - heightPreview;
         }
 
-        deepZoomMapPreviewFocus.width = widthPreview;
-        deepZoomMapPreviewFocus.height =heightPreview;
-        deepZoomMapPreviewFocus.x = xOffsetPreview;
-        deepZoomMapPreviewFocus.y = yOffsetPreview;
-
+        deepZoomMapPreviewNavigator.width = widthPreview;
+        deepZoomMapPreviewNavigator.height =heightPreview;
+        deepZoomMapPreviewNavigator.x = xOffsetPreview;
+        deepZoomMapPreviewNavigator.y = yOffsetPreview;
     }
 
     function tile2coordinate(xtile, ytile, zoom) {
@@ -219,7 +254,7 @@ Map {
         anchors.rightMargin: 10
         anchors.bottomMargin: 5
         onClicked: {
-            setVisibleRegion();
+            fitToViewPort();
         }
     }
 }
