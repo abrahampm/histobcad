@@ -13,7 +13,7 @@ numpy==1.24.3
 pandas==1.4.3
 Pillow==10.2.0
 pyinstaller==6.3.0
-pyinstaller-hooks-contrib==2020.10
+pyinstaller-hooks-contrib==2024.0
 pykwalify==1.7.0
 pyparsing==2.4.7
 pyradiomics==3.0.1
