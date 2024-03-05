@@ -39,6 +39,7 @@ class OpenSlideServer(TileServer):
 
     def __get_slide__(self, file_name: str):
         path = os.path.abspath(os.path.join(self._basedir, file_name))
+        print(path, self._basedir)
         if not path.startswith(self._basedir + os.path.sep):
             # Directory traversal
             raise ValueError('Invalid slide path: {}'.format(path))
@@ -112,7 +113,7 @@ class OpenSlideServer(TileServer):
         return self.__get_tile__(file_name, level, col, row, img_format)
 
     def set_base_path(self, path: str):
-        self._basedir = path
+        self._basedir = os.path.abspath(path)
 
     def set_tile_background(self, hex_color: str):
         self._bg_color = hex_color
