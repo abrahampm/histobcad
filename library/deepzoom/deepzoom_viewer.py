@@ -21,6 +21,8 @@ class DeepZoomViewer(QObject):
         self._dzi_dimensions = tuple()
         self._dzi_min_zoom_level = 0
         self._dzi_max_zoom_level = 0
+        self._dzi_meters_per_pixel = 0.0
+        self._dzi_pixels_per_meter = 0.0
         self.set_supported_file_extensions()
 
     def get_selected_file(self):
@@ -73,10 +75,13 @@ class DeepZoomViewer(QObject):
     def _set_dzi_info(self):
         self._dzi_levels = self._server.get_level_tiles(self._selected_file_name)
         self._dzi_dimensions = self._server.get_level_dimensions(self._selected_file_name)
+        self._dzi_meters_per_pixel = self._server.get_meters_per_pixel(self._selected_file_name)
         print(self._dzi_levels)
         print(self._dzi_dimensions)
+        print(self._dzi_meters_per_pixel)
         self.set_dzi_min_zoom_level()
         self.set_dzi_max_zoom_level()
+        self.set_dzi_pixels_per_meter()
 
     def get_selected_file_thumbnail(self):
         return self._selected_file_thumbnail_url
@@ -105,6 +110,14 @@ class DeepZoomViewer(QObject):
         self._dzi_max_zoom_level = len(self._dzi_levels) - 1
         self.on_dzi_max_zoom_level.emit()
 
+    def get_dzi_pixels_per_meter(self):
+        return self._dzi_pixels_per_meter
+
+    def set_dzi_pixels_per_meter(self):
+        self._dzi_pixels_per_meter = 1e6 / self._dzi_meters_per_pixel if self._dzi_meters_per_pixel > 0 else 0
+        print(self._dzi_pixels_per_meter)
+        self.on_dzi_pixels_per_meter.emit()
+
     def get_supported_file_extensions(self):
         return "(*." + " *.".join(self._supported_file_extensions) + ")"
 
@@ -121,6 +134,7 @@ class DeepZoomViewer(QObject):
     on_dzi_max_height = Signal()
     on_dzi_min_zoom_level = Signal()
     on_dzi_max_zoom_level = Signal()
+    on_dzi_pixels_per_meter = Signal()
 
     on_selected_file = Signal()
     on_selected_file_thumbnail = Signal()
@@ -132,6 +146,7 @@ class DeepZoomViewer(QObject):
     dzi_max_height = Property(int, get_dzi_max_height, notify=on_dzi_max_height)
     dzi_min_zoom_level = Property(int, get_dzi_min_zoom_level, set_dzi_min_zoom_level, notify=on_dzi_min_zoom_level)
     dzi_max_zoom_level = Property(int, get_dzi_max_zoom_level, set_dzi_max_zoom_level, notify=on_dzi_max_zoom_level)
+    dzi_pixels_per_meter = Property(float, get_dzi_pixels_per_meter, set_dzi_pixels_per_meter, notify=on_dzi_pixels_per_meter)
 
     selected_file = Property(QUrl, get_selected_file, set_selected_file, notify=on_selected_file)
     selected_file_thumbnail = Property(QUrl, get_selected_file_thumbnail, set_selected_file_thumbnail, notify=on_selected_file_thumbnail)

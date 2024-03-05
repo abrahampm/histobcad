@@ -92,6 +92,10 @@ class OpenSlideServer(TileServer):
         slide = self.__get_slide__(file_name)
         return slide.level_dimensions
 
+    def get_meters_per_pixel(self, file_name) -> float:
+        slide = self.__get_slide__(file_name)
+        return slide.mpp
+
     def get_supported_file_types(self):
         return self._supported_file_extensions
 

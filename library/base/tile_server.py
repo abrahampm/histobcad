@@ -17,6 +17,9 @@ class TileServer:
     def get_levels(self, file_id: str) -> tuple:
         raise NotImplementedError
 
+    def get_meters_per_pixel(self, file_id: str) -> float:
+        raise NotImplementedError
+
     def get_tile_dimensions(self) -> tuple:
         raise NotImplementedError
 

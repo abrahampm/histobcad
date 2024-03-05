@@ -38,9 +38,14 @@ Map {
     activeMapType: supportedMapTypes[supportedMapTypes.length - 1]
     onMapReadyChanged: {
         fitToViewPort();
+        setScaleBar();
+
     }
     onCenterChanged: {
         setPreviewRegion();
+    }
+    onZoomLevelChanged: {
+        setScaleBar();
     }
 
     MapRectangle {
@@ -162,6 +167,37 @@ Map {
             }
         }
     }
+
+    Rectangle {
+        id: deepZoomMapScaleBar
+        width: 275
+        height: 20
+        opacity: 0.8
+        color: "white"
+        anchors.left: parent.left
+        anchors.bottom: parent.bottom
+        anchors.leftMargin: 10
+        anchors.bottomMargin: 10
+        z: parent.z + 2
+        // border.color: "red"
+        // border.width: 2
+        Text {
+            id: deepZoomMapScaleBarText
+            text: ""
+            anchors.centerIn: parent
+        }
+        Rectangle {
+            height: 2
+            width: parent.width
+            anchors.bottom: parent.bottom
+            z: parent.z + 1
+            border.width: 1
+            border.color: Material.color(Material.Grey, Material.Shade700)
+            // border.color: "red"
+            // border.width: 2
+        }
+    }
+
     function fitToViewPort() {
         console.log("Min zoom level", viewer.dzi_min_zoom_level);
         console.log("Max zoom level", viewer.dzi_max_zoom_level);
@@ -188,6 +224,35 @@ Map {
         var center = Qt.point(origin.x + currentCenterX, origin.y + currentCenterY);
 
         deepZoomMap.center = deepZoomMap.toCoordinate(center, false);
+    }
+
+    function setScaleBar() {
+        var topLeft = deepZoomMap.fromCoordinate(deepZoomMapOriginRegion.topLeft, false);
+        var bottomRight = deepZoomMap.fromCoordinate(deepZoomMapOriginRegion.bottomRight, false);
+        var imageWidth = bottomRight.x - topLeft.x;
+        // console.log(topLeft, bottomRight);
+        var viewportWidth = deepZoomMap.width;
+        var zoom = imageWidth / viewportWidth;
+        if (zoom < 1) {
+            zoom = 1;
+            viewportWidth = imageWidth;
+        }
+        var ratio = viewportWidth / viewer.dzi_max_width * zoom;
+        var ppm = viewer.dzi_pixels_per_meter * ratio;
+        var value = deepZoomMapScaleBar.width / ppm;
+        // console.log(viewer.dzi_max_width, viewportWidth);
+        // console.log(viewer.dzi_pixels_per_meter, ppm, zoom, value);
+        var scaleBarText = "";
+        if (value < 0.000001) {
+            scaleBarText = (value * 1e9).toFixed(2) + " nm";
+        } else if (value < 0.001) {
+            scaleBarText = (value * 1e6).toFixed(2) + " μm";
+        } else if (value < 1) {
+            scaleBarText = (value * 1e3).toFixed(2) + " mm";
+        } else {
+            scaleBarText = value.toString();
+        }
+        deepZoomMapScaleBarText.text = scaleBarText;
     }
 
     function setPreviewRegion() {
