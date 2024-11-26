@@ -43,7 +43,7 @@ jobs:
 
       - name: Build app
         run: |
-          pyinstaller main.spec --key version=${{ env.version }}
+          pyinstaller main.spec
 
       - name: Archive windows artifacts
         if: ${{ matrix.os == 'windows-latest' }}
