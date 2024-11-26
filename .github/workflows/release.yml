@@ -24,6 +24,7 @@ jobs:
 
       - name: Generate app version
         id: version
+        shell: bash
         run: |
           TAG=$(git describe --tags --abbrev=0 || echo "v0.0.0")
           COMMIT=$(git rev-parse --short HEAD)
