@@ -1,74 +1,56 @@
 # -*- mode: python ; coding: utf-8 -*-
+from PyInstaller.utils.hooks import collect_data_files, collect_submodules
+
+# Include all data and modules from PySide6
+datas = collect_data_files('PySide6')
+
+# Include libopenslide
+import os
+import openslide_bin
+openslide_bin_dir = os.path.dirname(openslide_bin.__file__)
+libopenslide_path = os.path.join(openslide_bin_dir, "libopenslide.so.1")
+
+# Add libopenslide to datas
+if os.path.exists(libopenslide_path):
+    datas += [(libopenslide_path, "openslide_bin/")]
+
+# Include additional data files if needed
+datas += [
+    ('main.qml', '.'),
+    ('resources', 'resources'),
+    ('qml', 'qml'),
+]
+
+hiddenimports = collect_submodules('PySide6')
 
 block_cipher = None
 
-external_files = [('models/svmclassifier.C30_coef01.0_degree3_kernelpoly_selected_features100_histomics_rgb_color_histogram_rgb.joblib.pkl', 'models'),
-                  ('utils/scaler_gui_100_features.joblib.pkl', 'utils'),
-                  ('main.qml', '.'),
-                  ('resources/qt.qrc', 'resources'),
-                  ('resources/qtquickcontrols2.conf', 'resources'),
-                  ('venv/lib/python3.8/site-packages/radiomics/scripts/segment.py', 'radiomics/scripts'),
-                  ('venv/lib/python3.8/site-packages/radiomics/scripts/voxel.py', 'radiomics/scripts'),
-                  ('venv/lib/python3.8/site-packages/radiomics/schemas/schemaFuncs.py', 'radiomics/schemas'),
-                  ('venv/lib/python3.8/site-packages/radiomics/firstorder.py', 'radiomics'),
-                  ('venv/lib/python3.8/site-packages/radiomics/glcm.py', 'radiomics'),
-                  ('venv/lib/python3.8/site-packages/radiomics/gldm.py', 'radiomics'),
-                  ('venv/lib/python3.8/site-packages/radiomics/glrlm.py', 'radiomics'),
-                  ('venv/lib/python3.8/site-packages/radiomics/glszm.py', 'radiomics'),
-                  ('venv/lib/python3.8/site-packages/radiomics/ngtdm.py', 'radiomics'),
-                  ('venv/lib/python3.8/site-packages/radiomics/shape.py', 'radiomics'),
-                  ('venv/lib/python3.8/site-packages/radiomics/shape2D.py', 'radiomics'),
-                  ('venv/lib/python3.8/site-packages/radiomics/base.py', 'radiomics'),
-                  ('venv/lib/python3.8/site-packages/radiomics/featureextractor.py', 'radiomics'),
-                  ('venv/lib/python3.8/site-packages/radiomics/generalinfo.py', 'radiomics'),
-                  ('venv/lib/python3.8/site-packages/radiomics/imageoperations.py', 'radiomics'),
-                 ]
-
-a = Analysis(['main.py'],
-             pathex=['/home/abraham/Breast Cancer/IDC Tissue Classification using ML/App'],
-             binaries=[],
-             datas=external_files,
-             hiddenimports=[
-                'sklearn',
-                'radiomics.schemas.schemaFuncs',
-                'radiomics.scripts.segment',
-                'radiomics.scripts.voxel',
-                'radiomics.firstorder',
-                'radiomics.glcm',
-                'radiomics.gldm',
-                'radiomics.glrlm',
-                'radiomics.glszm',
-                'radiomics.ngtdm',
-                'radiomics.shape',
-                'radiomics.shape2D',
-                'radiomics.base',
-                'radiomics.featureextractor',
-                'radiomics.generalinfo',
-                'radiomics.imageoperations'],
-             hookspath=[],
-             runtime_hooks=[],
-             excludes=['matplotlib','tkinter'],
-             win_no_prefer_redirects=False,
-             win_private_assemblies=False,
-             cipher=block_cipher,
-             noarchive=False)
-pyz = PYZ(a.pure, a.zipped_data,
-             cipher=block_cipher)
-exe = EXE(pyz,
-          a.scripts,
-          [],
-          exclude_binaries=True,
-          name='HistoBCAD',
-          debug=False,
-          bootloader_ignore_signals=False,
-          strip=False,
-          upx=True,
-          console=False )
-coll = COLLECT(exe,
-               a.binaries,
-               a.zipfiles,
-               a.datas,
-               strip=False,
-               upx=True,
-               upx_exclude=[],
-               name='HistoBCAD')
+a = Analysis(
+    ['main.py'],
+    pathex=[],
+    binaries=[],
+    datas=datas,
+    hiddenimports=hiddenimports,
+    hookspath=[],
+    runtime_hooks=[],
+    excludes=[],
+    win_no_prefer_redirects=False,
+    win_private_assemblies=False,
+    cipher=block_cipher,
+    noarchive=False,
+)
+pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
+exe = EXE(
+    pyz,
+    a.scripts,
+    a.binaries,
+    a.zipfiles,
+    a.datas,
+    [],
+    name='SlideSimple',
+    debug=False,
+    bootloader_ignore_signals=False,
+    strip=False,
+    upx=True,
+    console=False,
+)
