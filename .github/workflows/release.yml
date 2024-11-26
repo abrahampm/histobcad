@@ -64,15 +64,15 @@ jobs:
       - name: Download Build Artifacts
         uses: actions/download-artifact@v4
         with:
-          name: build-ubuntu-latest
+          name: ubuntu-latest-build
           path: builds/ubuntu-latest/
       - uses: actions/download-artifact@v4
         with:
-          name: build-windows-latest
+          name: windows-latest-build
           path: builds/windows-latest/
       - uses: actions/download-artifact@v4
         with:
-          name: build-macos-latest
+          name: macos-latest-build
           path: builds/macos-latest/
 
       - name: Generate app version
