@@ -30,7 +30,7 @@ Dialog {
                 id: imageAppIcon
                 anchors.horizontalCenter: parent.horizontalCenter
                 fillMode: Image.PreserveAspectFit
-                source: "qrc:/images/icons/app/appIcon.svg"
+                source: "../../resources/icons/app/appIcon.svg"
                 sourceSize: Qt.size(148, 148)
 
                 opacity: 0.0

@@ -31,7 +31,7 @@ Dialog {
                 id: imageQtLogo
                 anchors.horizontalCenter: parent.horizontalCenter
                 fillMode: Image.PreserveAspectFit
-                source: "qrc:/images/icons/qt/qt_logo_green.svg"
+                source: "../../resources/icons/qt/qt_logo_green.svg"
                 sourceSize: Qt.size(148, 148)
             }
 
