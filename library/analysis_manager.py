@@ -1,7 +1,7 @@
 from PySide6.QtCore import QObject, Signal, Property, Slot
 from library.analysis_task import AnalysisTask
-from models.idc_detection.rf import RF100
-from models.idc_detection.svm import SVM100
+# from models.idc_detection.rf import RF100
+# from models.idc_detection.svm import SVM100
 from numpy import ndarray
 
 
@@ -12,8 +12,8 @@ class AnalysisManager(QObject):
         self._running = False
         self._status = ""
         self._tasks = {
-            "idc_detection_model1": RF100,
-            "idc_detection_model2": SVM100,
+            # "idc_detection_model1": RF100,
+            # "idc_detection_model2": SVM100,
         }
 
     @Slot(str, str)
