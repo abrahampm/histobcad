@@ -22,6 +22,18 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Generate app version
+        id: version
+        run: |
+          TAG=$(git describe --tags --abbrev=0 || echo "v0.0.0")
+          COMMIT=$(git rev-parse --short HEAD)
+          if [ "$(git describe --tags --exact-match 2>/dev/null || echo '')" = "$TAG" ]; then
+            VERSION="$TAG"
+          else
+            VERSION="${TAG}-${COMMIT}"
+          fi
+          echo "version=${VERSION}" >> $GITHUB_ENV
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -30,34 +42,53 @@ jobs:
 
       - name: Build app
         run: |
-          pyinstaller main.spec
+          pyinstaller main.spec --key version=${{ env.version }}
 
-      - name: Archive build
+      - name: Archive windows artifacts
         if: ${{ matrix.os == 'windows-latest' }}
-        run: |
-          mkdir -p dist/output
-          mv dist/SlideSimple.exe dist/output/
-          tar -cvzf slidesimple-windows.tar.gz -C dist/output/ .
+        run: tar -cvzf slidesimple-windows.tar.gz dist/SlideSimple.exe
 
-      - name: Archive build
+      - name: Archive ubuntu artifacts
         if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: |
-          mkdir -p dist/output
-          mv dist/SlideSimple dist/output/
-          tar -cvzf slidesimple-linux.tar.gz -C dist/output/ .
+        run: tar -cvzf slidesimple-linux.tar.gz dist/SlideSimple
 
-      - name: Archive build
+      - name: Archive macos artifacts
         if: ${{ matrix.os == 'macos-latest' }}
-        run: |
-          mkdir -p dist/output
-          mv dist/SlideSimple dist/output/
-          tar -cvzf slidesimple-macos.tar.gz -C dist/output/ .
+        run: tar -cvzf slidesimple-macos.tar.gz dist/SlideSimple
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1
         with:
-          name: ${{ matrix.os }}-build
-          path: |
-            slidesimple-windows.tar.gz
-            slidesimple-linux.tar.gz
-            slidesimple-macos.tar.gz
+          tag_name: ${{ env.version }}
+          release_name: ${{ env.version }}
+          body: |
+            Automated release created by GitHub Actions.
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload release assets (windows)
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: slidesimple-windows.tar.gz
+          asset_name: slidesimple-windows.tar.gz
+          asset_content_type: application/gzip
+
+      - name: Upload release assets (linux)
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: slidesimple-linux.tar.gz
+          asset_name: slidesimple-linux.tar.gz
+          asset_content_type: application/gzip
+
+      - name: Upload release assets (macos)
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: slidesimple-macos.tar.gz
+          asset_name: slidesimple-macos.tar.gz
+          asset_content_type: application/gzip
