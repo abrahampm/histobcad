@@ -108,6 +108,8 @@ jobs:
           asset_path: builds/ubuntu-latest/slidesimple-linux.tar.gz
           asset_name: slidesimple-linux.tar.gz
           asset_content_type: application/gzip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload release assets (windows)
         uses: actions/upload-release-asset@v1
@@ -116,6 +118,8 @@ jobs:
           asset_path: builds/windows-latest/slidesimple-windows.tar.gz
           asset_name: slidesimple-windows.tar.gz
           asset_content_type: application/gzip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload release assets (macos)
         uses: actions/upload-release-asset@v1
@@ -124,3 +128,5 @@ jobs:
           asset_path: builds/macos-latest/slidesimple-macos.tar.gz
           asset_name: slidesimple-macos.tar.gz
           asset_content_type: application/gzip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
