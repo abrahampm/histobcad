@@ -36,21 +36,21 @@ jobs:
         if: ${{ matrix.os == 'windows-latest' }}
         run: |
           mkdir -p dist/output
-          mv dist/slidesimple.exe dist/output/
+          mv dist/SlideSimple.exe dist/output/
           tar -cvzf slidesimple-windows.tar.gz -C dist/output/ .
 
       - name: Archive build
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
           mkdir -p dist/output
-          mv dist/slidesimple dist/output/
+          mv dist/SlideSimple dist/output/
           tar -cvzf slidesimple-linux.tar.gz -C dist/output/ .
 
       - name: Archive build
         if: ${{ matrix.os == 'macos-latest' }}
         run: |
           mkdir -p dist/output
-          mv dist/slidesimple dist/output/
+          mv dist/SlideSimple dist/output/
           tar -cvzf slidesimple-macos.tar.gz -C dist/output/ .
 
       - name: Upload artifacts
