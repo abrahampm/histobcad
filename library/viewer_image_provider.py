@@ -1,7 +1,7 @@
-from PySide2.QtQuick import QQuickImageProvider
-from PySide2.QtCore import QSize, Slot, Signal
-from PySide2.QtGui import QImage
-from PySide2.QtQml import QQmlImageProviderBase
+from PySide6.QtQuick import QQuickImageProvider
+from PySide6.QtCore import QSize, Slot, Signal
+from PySide6.QtGui import QImage
+from PySide6.QtQml import QQmlImageProviderBase
 
 
 class ViewerImageProvider (QQuickImageProvider):

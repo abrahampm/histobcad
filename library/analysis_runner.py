@@ -1,5 +1,5 @@
-from PySide2.QtCore import QObject, Signal, Slot
-from PySide2.QtGui import QGuiApplication
+from PySide6.QtCore import QObject, Signal, Slot
+from PySide6.QtGui import QGuiApplication
 from multiprocessing import Process, Queue
 from library.analysis_task import AnalysisTask
 from numpy import ndarray

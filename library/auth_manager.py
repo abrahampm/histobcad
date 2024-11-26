@@ -1,5 +1,5 @@
-from PySide2.QtCore import QObject, Signal, Property, Slot
-from PySide2.QtGui import QImage
+from PySide6.QtCore import QObject, Signal, Property, Slot
+from PySide6.QtGui import QImage
 from library.user_model import User
 
 

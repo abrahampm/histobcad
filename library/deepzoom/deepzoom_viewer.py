@@ -1,7 +1,7 @@
 import os
 import re
 
-from PySide2.QtCore import QObject, QStringListModel, QUrl, Signal, Property, Slot, QAbstractItemModel
+from PySide6.QtCore import QObject, QStringListModel, QUrl, Signal, Property, Slot, QAbstractItemModel
 
 from library.deepzoom.deepzoom_server import DeepZoomServer
 

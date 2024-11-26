@@ -1,8 +1,8 @@
 import os
 import re
 
-from PySide2.QtCore import QObject, QStringListModel, QUrl, Signal, Property, Slot, QAbstractItemModel
-from PySide2.QtGui import QImage
+from PySide6.QtCore import QObject, QStringListModel, QUrl, Signal, Property, Slot, QAbstractItemModel
+from PySide6.QtGui import QImage
 from numpy import ndarray
 
 

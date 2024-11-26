@@ -1,5 +1,5 @@
-from PySide2.QtCore import QObject, Signal, Property, Slot, QByteArray
-from PySide2.QtGui import QImage
+from PySide6.QtCore import QObject, Signal, Property, Slot, QByteArray
+from PySide6.QtGui import QImage
 import requests
 from library.user_model import User
 from datetime import datetime

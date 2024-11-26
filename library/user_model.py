@@ -1,4 +1,4 @@
-from PySide2.QtCore import QObject, Signal, Property
+from PySide6.QtCore import QObject, Signal, Property
 from datetime import datetime
 
 
