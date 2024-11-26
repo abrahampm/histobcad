@@ -1,37 +1,76 @@
-import QtQuick 2.12
-import QtQuick.Controls 2.15
-import QtQuick.Controls.Material 2.4
-import QtQuick.Layouts 1.11
-import QtQuick.Dialogs 1.0
-
-
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Controls.Material
+import QtQuick.Layouts
+import QtQuick.Dialogs
+import "qml/dialogs" as Dialogs
+import "qml/components" as Components
 
 ApplicationWindow {
     id: applicationWindow
-    title: qsTr("HistopathApp")
+    title: qsTr("SlideSimple")
     visible: true
     width: 1024
     height: 576
 
     menuBar: MenuBar {
+        id: mainMenuBar
+
         Menu {
             title: qsTr("File")
             Action {
                 text: qsTr("Open")
-                onTriggered: fileDialog.open()
+                onTriggered: openFileDialog.open()
             }
             Action { text: qsTr("Save") }
             Action { text: qsTr("Save as...")}
+            MenuSeparator {}
+            Action { text: qsTr("Exit")}
         }
-
         Menu {
-            title: qsTr("Processing")
+            title: qsTr("Analysis")
             enabled: viewer.selected_file
-            Action {
-                text: worker_manager.running ? qsTr("Stop processing") : qsTr("Start processing")
-                onTriggered: {
-                    worker_manager.running ? worker_manager.stop_worker() : worker_manager.start_worker(viewer.selected_file)
+            Menu {
+                title: qsTr("IDC Detection")
+                Action {
+                    text: qsTr("RF Model")
+                    onTriggered: {
+                        analysis_manager.start_analysis(viewer.selected_file, 'idc_detection_model1')
+                    }
+                }                
+                Action {
+                    text: qsTr("RF Model1")
+                    onTriggered: {
+                        analysis_manager.start_analysis(viewer.selected_file, 'idc_detection_model3')
+                    }
                 }
+                Action {
+                    text: qsTr("SVM Model")
+                    onTriggered: {
+                        analysis_manager.start_analysis(viewer.selected_file, 'idc_detection_model2')
+                    }
+                }
+            }
+            Action {
+                text: qsTr("Manual delineation")
+            }
+            Action {
+                text: qsTr("Stop analysis")
+                enabled: analysis_manager.running
+            }
+        }
+        Menu {
+            title: qsTr("Diagnostic")
+            enabled: viewer.selected_file
+
+            Action {
+                text: qsTr("Create diagnostic")
+            }
+            Action {
+                text: qsTr("Edit diagnostic")
+            }
+            Action {
+                text: qsTr("Share diagnostic")
             }
         }
         Menu {
@@ -57,268 +96,121 @@ ApplicationWindow {
                     }
                 }
             }
+            Action {
+                text: qsTr("Server settings")
+            }
         }
         Menu {
             title: qsTr("Help")
-            Action { text: qsTr("Open help")}
+            Action { text: qsTr("User manual")}
+            Action {
+                text: qsTr("About SlideSimple")
+                onTriggered: aboutDialog.open()
+            }
+            Action {
+                text: qsTr("About License")
+                onTriggered: aboutLicenseDialog.open()
+            }
+            Action {
+                text: qsTr("About Qt")
+                onTriggered: aboutQtDialog.open()
+            }
+        }
+
+        background: Rectangle {
+            implicitWidth: 40
+            implicitHeight: 40
+            color: "#ffffff"
+
+            Rectangle {
+                color: "#eeeeee"
+                width: parent.width
+                height: 1
+                anchors.bottom: parent.bottom
+            }
         }
     }
+
+    Row {
+        id:rightToolbar
+        anchors.right: parent.right
+        anchors.bottom: parent.top
+        height: mainMenuBar.height
+        z: 100
+
+        ToolButton {
+            height: parent.height
+            font.capitalization: Font.MixedCase
+            icon.source: "resources/icons/notifications.svg"
+            icon.color: "transparent"
+            icon.height: parent.height * 0.5
+            icon.width: parent.height * 0.5
+            visible: auth_manager.user.authenticated === true
+            onClicked: {
+                rightPanelContentLoader.source = "qml/components/ComponentNotificationsPanel.qml"
+                rightPanel.visible = true
+            }
+        }
+        ToolButton {
+            text: auth_manager.user.authenticated === true ? auth_manager.user.email : qsTr("Sign in")
+            height: parent.height
+            font.capitalization: Font.MixedCase
+            icon.source: "resources/icons/user.svg"
+            icon.color: "transparent"
+            icon.height: parent.height * 0.5
+            icon.width: parent.height * 0.5
+            onClicked: {
+                if (auth_manager.user.authenticated === true) {
+                    rightPanelContentLoader.source = "qml/components/ComponentUserProfilePanel.qml"
+                    rightPanel.visible = true
+                } else {
+                    loginDialog.open()
+                }
+            }
+        }
+    }
+
+
+
 
     SplitView {
         id: splitView
         anchors.fill: parent
         orientation: Qt.Horizontal
-        Rectangle {
-            id: leftPanel
-            SplitView.preferredWidth: (viewer.selected_file.toString() === "") ? 0 : parent.width * 0.2
-//            SplitView.preferredWidth: parent.width * 0.2
-//            SplitView.minimumWidth: parent.width * 0.15
-            SplitView.maximumWidth: parent.width * 0.5
 
-            color: Material.color(Material.Grey, Material.Shade50)
+        Components.ComponentImageListPanel {
+            SplitView.minimumWidth: parent.width*0.05
+            SplitView.preferredWidth: parent.width * 0.08
+            SplitView.maximumWidth: parent.width * 0.2
+        }
+
+        Components.ComponentDeepZoomViewer {
+            SplitView.minimumWidth: parent.width*0.5
+            SplitView.fillWidth: true
+        }
+
+        Rectangle {
+            id: rightPanel
+            SplitView.preferredWidth: parent.width * 0.3
+            SplitView.minimumWidth: parent.width * 0.2
+            SplitView.maximumWidth: parent.width * 0.4
+            color: "white"
+            visible: false
+//            visible: true
 
             ScrollView {
+                id: scrollViewRightPanel
                 anchors.fill: parent
-                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff // disable the horizontal scroll bar
+                padding: 10
+                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+                ScrollBar.vertical.policy: ScrollBar.AsNeeded
 
-                ListView {
-                    id: listView
-                    model: viewer.selected_file_siblings
-                    width: parent.width
-                    height: parent.height
-                    anchors.fill: parent
-                    spacing: 10
-
-                    // The delegate presents the information stored in the model
-                    delegate: Rectangle {
-                        border.color: Material.color(Material.Grey, (display === viewer.selected_file) ? Material.Shade700 : Material.Shade300)
-                        border.width: (display === viewer.selected_file) ? 3 : 1
-                        width: parent.width
-                        height: parent.width * 0.60
-
-                        Image {
-                            asynchronous: true
-                            fillMode: Image.PreserveAspectCrop
-                            source: display
-                            width: parent.width - 20
-                            height: parent.width * 0.56
-                            sourceSize.width: 512
-                            sourceSize.height: 512
-                            anchors.centerIn: parent
-
-                            BusyIndicator {
-                                running: parent.status === Image.Loading
-                                anchors.centerIn: parent
-                            }
-                        }
-//                        Label {
-//                            text: display
-//                            anchors.centerIn: parent.Center
-//                        }
-                        MouseArea {
-                            anchors.fill: parent
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: {
-                                viewer.mask_file = ''
-                                viewer.selected_file = display
-
-                            }
-                        }
-                    }
+                Loader {
+                    id: rightPanelContentLoader
+                    source: ""
+//                    source: "qml/components/ComponentUserProfilePanel.qml"
                 }
-            }
 
-//            Button {
-//                text: qsTr("Select WSI")
-////                Material.background: Material.Indigo
-////                anchors.centerIn: parent
-
-//                onClicked: {
-//                    fileDialog.open()
-//                }
-//            }
-
-//            Button {
-//                text: qsTr("Stop worker")
-////                Material.background: Material.Indigo
-////                anchors.centerIn: parent
-
-//                visible: worker_manager.running
-//                onClicked: {
-//                    worker_manager.stop_worker()
-//                }
-//            }
-
-        }
-        Rectangle {
-            id: visor
-            Layout.fillWidth: true
-            color: "white"
-
-            Rectangle {
-                anchors.fill: parent
-                z: dragArea.z+1
-                visible: (viewer.selected_file.toString() === "")
-                Label {
-                    text: qsTr("Drag and drop an image here to open it")
-                    color: Material.color(Material.Grey, Material.Shade400)
-                    anchors.centerIn: parent
-                }
-            }
-
-            BusyIndicator {
-                running: mapImage.status === Image.Loading
-                anchors.centerIn: parent
-                z: dragArea.z + 4
-            }
-
-
-
-            Flickable {
-                id: flick
-                anchors.fill: parent
-                clip: true
-
-                Rectangle {
-                    id: rect
-                    width: Math.max(mapImage.sourceSize.width, flick.width)
-                    height: Math.max(mapImage.sourceSize.height, flick.height)
-                    transform: Scale {
-                        id: scaler
-                        origin.x: pinchArea.m_x2
-                        origin.y: pinchArea.m_y2
-                        xScale: pinchArea.m_zoom2
-                        yScale: pinchArea.m_zoom2
-                    }
-
-                    Image
-                    {
-                        asynchronous: true
-                        id: mapImage
-                        z: dragArea.z+1
-                        source: viewer.selected_file
-                        //anchors.centerIn: parent
-                        //fillMode: Image.PreserveAspectFit
-                        anchors.fill: parent
-                    }
-                    Image {
-                        asynchronous: true
-                        id: maskImage
-                        z:dragArea.z + 2
-                        source: viewer.mask_file
-                        anchors.fill: parent
-                    }
-
-                    PinchArea {
-                        id: pinchArea
-                        anchors.fill: parent
-                        property real m_x1: 0
-                        property real m_y1: 0
-                        property real m_y2: 0
-                        property real m_x2: 0
-                        property real m_zoom1: 0.5
-                        property real m_zoom2: 0.5
-                        property real m_max: 2
-                        property real m_min: 0.2
-
-                        onPinchStarted: {
-                            m_x1 = scaler.origin.x
-                            m_y1 = scaler.origin.y
-                            m_x2 = pinch.startCenter.x
-                            m_y2 = pinch.startCenter.y
-                            rect.x = rect.x + (pinchArea.m_x1-pinchArea.m_x2)*(1-pinchArea.m_zoom1)
-                            rect.y = rect.y + (pinchArea.m_y1-pinchArea.m_y2)*(1-pinchArea.m_zoom1)
-                        }
-                        onPinchUpdated: {
-                            m_zoom1 = scaler.xScale
-                            var dz = pinch.scale-pinch.previousScale
-                            var newZoom = m_zoom1+dz
-                            if (newZoom <= m_max && newZoom >= m_min) {
-                                m_zoom2 = newZoom
-                            }
-                        }
-                        MouseArea {
-                            id: dragArea
-                            hoverEnabled: true
-                            anchors.fill: parent
-                            drag.target: rect
-                            drag.filterChildren: true
-
-                            onWheel: {
-                                pinchArea.m_x1 = scaler.origin.x
-                                pinchArea.m_y1 = scaler.origin.y
-                                pinchArea.m_zoom1 = scaler.xScale
-                                pinchArea.m_x2 = mouseX
-                                pinchArea.m_y2 = mouseY
-
-                                var newZoom
-                                if (wheel.angleDelta.y > 0) {
-                                    newZoom = pinchArea.m_zoom1+0.1
-                                    if (newZoom <= pinchArea.m_max) {
-                                        pinchArea.m_zoom2 = newZoom
-                                    } else {
-                                        pinchArea.m_zoom2 = pinchArea.m_max
-                                    }
-                                } else {
-                                    newZoom = pinchArea.m_zoom1-0.1
-                                    if (newZoom >= pinchArea.m_min) {
-                                        pinchArea.m_zoom2 = newZoom
-                                    } else {
-                                        pinchArea.m_zoom2 = pinchArea.m_min
-                                    }
-                                }
-                                rect.x = rect.x + (pinchArea.m_x1-pinchArea.m_x2)*(1-pinchArea.m_zoom1)
-                                rect.y = rect.y + (pinchArea.m_y1-pinchArea.m_y2)*(1-pinchArea.m_zoom1)
-
-                                console.debug(rect.width+" -- "+rect.height+"--"+rect.scale)
-
-                            }
-                        }
-                    }
-                }
-            }
-            Rectangle {
-                anchors.bottom: parent.bottom
-//                anchors.left: parent.left
-                anchors.right: parent.right
-                height: 35
-                width: 200
-                z: dragArea.z + 6
-                color: "transparent"
-                visible: !(viewer.mask_file.toString() === "")
-
-                RowLayout {
-                    Slider {
-                        id: maskOpacitySlider
-                        from: 0.0
-                        to: 1.0
-                        value: 1
-                        stepSize: 0.1
-                        onValueChanged: {
-                            maskImage.opacity = maskOpacitySlider.value
-                        }
-                    }
-                }
-            }
-
-//            Image {
-//                id:background_image
-//                z: 10
-//                fillMode: Image.PreserveAspectFit
-//                source: "/media/abraham/Datos/University/Tesis/Code/app/assets/background.png"
-//                height: parent.height
-//                width: parent.width
-//            }
-
-            ProgressBar {
-                id: progressBar
-                width: parent.width
-                anchors.bottom: parent.bottom
-                from: 0
-                to: 100
-                visible: worker_manager.running
-                value: worker_manager.progress
-                Behavior on value { NumberAnimation {} }
             }
         }
     }
@@ -338,21 +230,57 @@ ApplicationWindow {
             anchors.verticalCenter: parent.verticalCenter
             padding: 5
             elide: Text.ElideRight
-            text: worker_manager.status
+            text: analysis_manager.status
         }
     }
 
+    Dialogs.DialogOpenFile {
+        id: openFileDialog
+    }
 
-    FileDialog {
-        id: fileDialog
-        title: qsTr("Select an image")
-//        folder: shortcuts.home
-        nameFilters: [ qsTr("Image files ") + " (*.jpg *.png *.bmp)" ]
-        onAccepted: {
-//            mapImage.source = fileDialog.fileUrl
-//            background_image.z = -1
-            viewer.selected_file = fileDialog.fileUrl
-        }
+    Dialogs.DialogLogin {
+        id: loginDialog
+        anchors.centerIn: Overlay.overlay
+        width: applicationWindow.width < 410 ? applicationWindow.width : 410
+        height: applicationWindow.height < 444 ? applicationWindow.height : 444
+        modal: true
+        focus: visible
+    }
+
+    Dialogs.DialogRegister {
+        id: registerDialog
+        anchors.centerIn: Overlay.overlay
+        width: applicationWindow.width < 410 ? applicationWindow.width : 410
+        height: applicationWindow.height < 524 ? applicationWindow.height : 524
+        modal: true
+        focus: visible
+    }
+
+    Dialogs.DialogAbout {
+        id: aboutDialog
+        anchors.centerIn: Overlay.overlay
+        width: implicitWidth > applicationWindow.width - 40 ? applicationWindow.width - 40 : implicitWidth
+        height: implicitHeight > applicationWindow.height - 40 ? applicationWindow.height - 40 : implicitHeight
+        modal: true
+        focus: visible
+    }
+
+    Dialogs.DialogAboutLicense {
+        id: aboutLicenseDialog
+        anchors.centerIn: Overlay.overlay
+        width: implicitWidth > applicationWindow.width - 40 ? applicationWindow.width - 40 : implicitWidth
+        height: implicitHeight > applicationWindow.height - 40 ? applicationWindow.height - 40 : implicitHeight
+        modal: true
+        focus: visible
+    }
+
+    Dialogs.DialogAboutQt {
+        id: aboutQtDialog
+        anchors.centerIn: Overlay.overlay
+        width: implicitWidth > applicationWindow.width - 40 ? applicationWindow.width - 40 : implicitWidth
+        height: implicitHeight > applicationWindow.height - 40 ? applicationWindow.height - 40 : implicitHeight
+        modal: true
+        focus: visible
     }
 }
 

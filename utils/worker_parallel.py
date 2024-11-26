@@ -4,11 +4,12 @@ import signal
 import joblib
 from multiprocessing import Pool, cpu_count
 from datetime import datetime
-from library.wsi_split import split_wsi
+from library.wsi_utils import split_image
 from numpy import ones, array
 from pandas import DataFrame
 from SimpleITK import GetImageFromArray, VectorIndexSelectionCast
 from radiomics.featureextractor import RadiomicsFeatureExtractor
+from library.create_rgba_mask import create_rgba_mask
 
 
 NUM_OF_WORKERS = cpu_count()
@@ -181,7 +182,7 @@ base = os.path.dirname(__file__)
 model_path = os.path.abspath(os.path.join(base, '../models/svmclassifier.C30_coef01.0_degree3_kernelpoly_selected_features100_histomics_rgb_color_histogram_rgb.joblib.pkl'))
 model = joblib.load(model_path)
 
-scaler_path = os.path.abspath(os.path.join(base, '../utils/scaler_gui_100_features.joblib.pkl'))
+scaler_path = os.path.abspath(os.path.join(base, '../utils/feature_scaler_100.joblib.pkl'))
 scaler = joblib.load(scaler_path)
 
 tiles = []
@@ -254,7 +255,7 @@ def predict(queue, file_path, tr):
 
     start = datetime.now()
     queue.put({'status': tr("Splitting image for processing")})
-    wsi, tiles = split_wsi(file_path, tile_width, tile_height)
+    wsi, tiles = split_image(file_path, tile_width, tile_height)
 
     pool = Pool(NUM_OF_WORKERS)
 
@@ -277,7 +278,7 @@ def predict(queue, file_path, tr):
 
     total_jobs = len(jobs)
     # queue.put({'status': "{} jobs loaded".format(total_jobs)})
-    queue.put({'status': tr('Starting parallel processing with ' + str(NUM_OF_WORKERS) + ' paraller workers...')})
+    # queue.put({'status': tr('Starting parallel processing with ' + str(NUM_OF_WORKERS) + ' paraller workers...')})
 
     data = []
 
@@ -291,23 +292,13 @@ def predict(queue, file_path, tr):
 
     queue.put({'status': tr('Parallel processing finished')})
     # queue.put({'status': "{} jobs processed in {}".format(total_jobs, str(end - start))})
-
-    queue.put({'status': tr('Creating highlighting mask...')})
-    # msk_width = tiles.shape[0]*tile_width
-    # msk_height = tiles.shape[1]*tile_height
-    # msk = create_rgba_mask(data, msk_width, msk_height, tile_width, tile_height, 30)
-    # queue.put({'status': 'Saving mask'})
-    # fig = plt.figure(figsize=(wsi.shape[1] / 100, wsi.shape[0] / 100), dpi=100)
-    # plt.gca().set_axis_off()
-    # plt.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
-    # plt.margins(0, 0)
-    # plt.gca().xaxis.set_major_locator(plt.NullLocator())
-    # plt.gca().yaxis.set_major_locator(plt.NullLocator())
-    # # plt.imshow(wsi, extent=(0, wsi.shape[1], 0, wsi.shape[0]))
-    # plt.imshow(msk,  extent=(0, msk_width, 0, msk_height))
-    # fig.savefig('output.png', format='png', dpi=100, bbox_inches='tight', pad_inches=0, transparent=True)
+    joblib.dump(data, "data2.pkl")
+    queue.put({'status': tr('Creating highlighting mask')})
+    msk_width = wsi.shape[1]
+    msk_height = wsi.shape[0]
+    msk = create_rgba_mask(data, msk_width, msk_height, tile_width, tile_height, 30)
     end = datetime.now()
     queue.put({'status': (tr('Image processed in ') + '{}').format(end - start)})
-    queue.put({'status': 'done'})
+    queue.put({'success': True, 'output': {'mask': msk, 'data': data}})
     return
 

@@ -1,0 +1,51 @@
+setting:
+  binWidth: 3
+  label: 1
+  interpolator: 'sitkBSpline'
+  resampledPixelSpacing:
+  weightingNorm:
+  force2D: True
+  force2Ddimension: 1
+  additionalInfo: False
+
+imageType:
+  Original: {}
+
+featureClass:
+  firstorder:
+    - '10Percentile'
+    - 'Median'
+    - 'Energy'
+    - 'Mean'
+    - '90Percentile'
+    - 'RootMeanSquared'
+    - 'Variance'
+    - 'InterquartileRange'
+
+  glcm:
+    - 'ClusterProminence'
+    - 'ClusterTendency'
+    - 'Contrast'
+    - 'JointEnergy'
+    - 'SumSquares'
+    - 'SumEntropy'
+    - 'DifferenceVariance'
+    - 'JointEntropy'
+
+  glrlm:
+    - 'GrayLevelVariance'
+    - 'LongRunLowGrayLevelEmphasis'
+    - 'GrayLevelNonUniformityNormalized'
+    - 'RunEntropy'
+
+  glszm:
+    - 'GrayLevelVariance'
+    - 'LargeAreaLowGrayLevelEmphasis'
+    - 'GrayLevelNonUniformityNormalized'
+    - 'HighGrayLevelZoneEmphasis'
+
+  gldm:
+    - 'GrayLevelNonUniformity'
+    - 'LargeDependenceLowGrayLevelEmphasis'
+    - 'GrayLevelVariance'
+
