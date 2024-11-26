@@ -3,9 +3,9 @@
 import os
 import sys
 import requests
-from PySide2.QtCore import QThread, Slot
-from PySide2.QtGui import QGuiApplication
-from PySide2.QtQml import QQmlApplicationEngine
+from PySide6.QtCore import QThread, Slot
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
 
 from library.auth_service import AuthService
 from library.deepzoom.deepzoom_server import DeepZoomServer
@@ -40,7 +40,7 @@ if __name__ == '__main__':
     requests_thread.setObjectName("HistoBCAD_Requests")
 
     app = QGuiApplication(sys.argv)
-    app.instance().thread().setObjectName('HistoBCAD')
+    app.instance().thread().setObjectName('SlideSimple')
 
     analysis_manager = AnalysisManager()
     analysis_runner_thread = QThread()
