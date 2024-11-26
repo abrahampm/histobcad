@@ -1,8 +1,8 @@
-import QtQuick 2.12
-import QtQuick.Controls 2.15
-import QtQuick.Controls.Material 2.4
-import QtQuick.Layouts 1.11
-import QtQuick.Dialogs 1.0
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Controls.Material
+import QtQuick.Layouts
+import QtQuick.Dialogs
 import "qml/dialogs" as Dialogs
 import "qml/components" as Components
 

@@ -96,7 +96,7 @@ if __name__ == '__main__':
     if not engine.rootObjects():
         sys.exit(-1)
 
-    rc = app.exec_()
+    rc = app.exec()
 
     if analysis_manager.running:
         analysis_manager.stop_analysis()

@@ -1,10 +1,10 @@
-import QtQuick 2.12
-import QtQuick.Controls 2.12
+import QtQuick
+import QtQuick.Controls
 
 Dialog {
     id: dialogAboutQt
 
-    readonly property string qtVersionString: "5.14.2"
+    readonly property string qtVersionString: "6"
 
     contentWidth: Math.max(imageQtLogo.width + labelAboutQt.implicitWidth > 400 ? 400 : imageQtLogo.width + labelAboutQt.implicitWidth)
     contentHeight: flickable.contentHeight
