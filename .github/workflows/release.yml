@@ -1,0 +1,63 @@
+name: Build and Release App
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Build app
+        run: |
+          pyinstaller main.spec
+
+      - name: Archive build
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: |
+          mkdir -p dist/output
+          mv dist/slidesimple.exe dist/output/
+          tar -cvzf slidesimple-windows.tar.gz -C dist/output/ .
+
+      - name: Archive build
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: |
+          mkdir -p dist/output
+          mv dist/slidesimple dist/output/
+          tar -cvzf slidesimple-linux.tar.gz -C dist/output/ .
+
+      - name: Archive build
+        if: ${{ matrix.os == 'macos-latest' }}
+        run: |
+          mkdir -p dist/output
+          mv dist/slidesimple dist/output/
+          tar -cvzf slidesimple-macos.tar.gz -C dist/output/ .
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.os }}-build
+          path: |
+            slidesimple-windows.tar.gz
+            slidesimple-linux.tar.gz
+            slidesimple-macos.tar.gz
