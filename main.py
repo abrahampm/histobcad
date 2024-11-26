@@ -30,6 +30,7 @@ def update_app_language():
 API_URL = "http://histobcad-server.docksal/api"
 DEEPZOOM_HOST = "localhost"
 DEEPZOOM_PORT = 8989
+APP_VERSION = getattr(sys, "_MEIPASS", "")
 
 
 if __name__ == '__main__':
@@ -41,6 +42,7 @@ if __name__ == '__main__':
 
     app = QGuiApplication(sys.argv)
     app.instance().thread().setObjectName('SlideSimple')
+    print("App version", APP_VERSION)
 
     analysis_manager = AnalysisManager()
     analysis_runner_thread = QThread()
