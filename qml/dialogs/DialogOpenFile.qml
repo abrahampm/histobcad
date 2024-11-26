@@ -11,7 +11,7 @@ FileDialog {
     nameFilters: [ qsTr("Image files ") + " " + viewer.supported_file_extensions ]
     onAccepted: {
 //             viewer.selected_file = fileDialog.fileUrl
-        viewer.selected_file = openFileDialog.fileUrl
+        viewer.selected_file = openFileDialog.currentFile;
         // rightPanelContentLoader.source = "qml/components/ComponentDiagnosticForm.qml"
 //            rightPanel.visible = true
     }
