@@ -10,20 +10,23 @@ import openslide_bin
 openslide_bin_dir = os.path.dirname(openslide_bin.__file__)
 
 # Detect libopenslide path
-libopenslide_path = ''
+libopenslide_path = None
 if os.name == 'nt':
     #Windows
     libopenslide_path = os.path.join(openslide_bin_dir, "libopenslide-1.dll")
+    datas += [(libopenslide_path, "static/openslide-win64/bin/")]
 elif os.name == 'posix':
     if os.uname().sysname == 'Darwin':
        #macOS
        libopenslide_path = os.path.join(openslide_bin_dir, "libopenslide.1.dylib")
+       datas += [(libopenslide_path, "static/")]
     elif os.uname().sysname == 'Linux':
-        #Linux
-        libopenslide_path = os.path.join(openslide_bin_dir, "libopenslide.so.1")
+       #Linux
+       libopenslide_path = os.path.join(openslide_bin_dir, "libopenslide.so.1")
+       datas += [(libopenslide_path, "static/")]
 
-assert os.path.exists(libopenslide_path)
-datas += [(libopenslide_path, "openslide_bin/")]
+assert libopenslide_path is not None and os.path.exists(libopenslide_path)
+
 
 # Include additional data files if needed
 datas += [
