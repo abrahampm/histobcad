@@ -13,7 +13,7 @@ openslide_bin_dir = os.path.dirname(openslide_bin.__file__)
 libopenslide_path = ''
 if os.name == 'nt':
     #Windows
-    libopenslide_path = os.path.join(openslide_bin_dir, "libopenslide.lib")
+    libopenslide_path = os.path.join(openslide_bin_dir, "libopenslide-1.dll")
 elif os.name == 'posix':
     if os.uname().sysname == 'Darwin':
        #macOS
