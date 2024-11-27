@@ -6,11 +6,11 @@ import QtLocation
 import QtPositioning
 
 
-Map {
-    id: deepZoomMap
+MapView {
+    id: deepZoomMapViewer
     anchors.fill: parent
 
-    plugin: Plugin {
+    map.plugin: Plugin {
         name: "osm"
         PluginParameter {
             name: "osm.mapping.custom.host"
@@ -31,20 +31,20 @@ Map {
             value: true
         }
     }
-    // zoomLevel: viewer.dzi_min_zoom_level
-    minimumZoomLevel: viewer.dzi_min_zoom_level
-    maximumZoomLevel: viewer.dzi_max_zoom_level
-    //center: QtPositioning.coordinate(90, 180)
-    activeMapType: supportedMapTypes[supportedMapTypes.length - 1]
-    onMapReadyChanged: {
+    // map.zoomLevel: viewer.dzi_min_zoom_level
+    map.minimumZoomLevel: viewer.dzi_min_zoom_level
+    map.maximumZoomLevel: viewer.dzi_max_zoom_level
+    //map.center: QtPositioning.coordinate(90, 180)
+    map.activeMapType: map.supportedMapTypes[map.supportedMapTypes.length - 1]
+    map.onMapReadyChanged: {
         fitToViewPort();
         setScaleBar();
 
     }
-    onCenterChanged: {
+    map.onCenterChanged: {
         setPreviewRegion();
     }
-    onZoomLevelChanged: {
+    map.onZoomLevelChanged: {
         setScaleBar();
     }
 
@@ -209,29 +209,29 @@ Map {
         var bottomRightCoordinate = tile2coordinate(origin + maxWidth, origin + maxHeight, maxZoomLevel);
         deepZoomMapOriginRegion.topLeft = topLeftCoordinate;
         deepZoomMapOriginRegion.bottomRight = bottomRightCoordinate;
-        // console.log("Visible region before: ", deepZoomMap.visibleRegion.boundingGeoRectangle())
-        deepZoomMap.visibleRegion = QtPositioning.rectangle(topLeftCoordinate, bottomRightCoordinate);
-        // console.log("Visible region after: ", deepZoomMap.visibleRegion.boundingGeoRectangle())
+        // console.log("Visible region before: ", deepZoomMapViewer.map.visibleRegion.boundingGeoRectangle())
+        deepZoomMapViewer.map.visibleRegion = QtPositioning.rectangle(topLeftCoordinate, bottomRightCoordinate);
+        // console.log("Visible region after: ", deepZoomMapViewer.map.visibleRegion.boundingGeoRectangle())
     }
 
     function setVisibleRegion() {
         previewFadeOutTimer.restart()
-        var origin = deepZoomMap.fromCoordinate(deepZoomMapOriginRegion.topLeft, false);
+        var origin = deepZoomMapViewer.map.fromCoordinate(deepZoomMapOriginRegion.topLeft, false);
         var previewCenterX = deepZoomMapPreviewNavigator.x + deepZoomMapPreviewNavigator.width / 2;
         var previewCenterY = deepZoomMapPreviewNavigator.y + deepZoomMapPreviewNavigator.height / 2;
         var currentCenterX = deepZoomMapOriginRegion.width * (previewCenterX / deepZoomMapPreview.width);
         var currentCenterY = deepZoomMapOriginRegion.height * (previewCenterY / deepZoomMapPreview.height);
         var center = Qt.point(origin.x + currentCenterX, origin.y + currentCenterY);
 
-        deepZoomMap.center = deepZoomMap.toCoordinate(center, false);
+        deepZoomMapViewer.map.center = deepZoomMapViewer.map.toCoordinate(center, false);
     }
 
     function setScaleBar() {
-        var topLeft = deepZoomMap.fromCoordinate(deepZoomMapOriginRegion.topLeft, false);
-        var bottomRight = deepZoomMap.fromCoordinate(deepZoomMapOriginRegion.bottomRight, false);
+        var topLeft = deepZoomMapViewer.map.fromCoordinate(deepZoomMapOriginRegion.topLeft, false);
+        var bottomRight = deepZoomMapViewer.map.fromCoordinate(deepZoomMapOriginRegion.bottomRight, false);
         var imageWidth = bottomRight.x - topLeft.x;
         // console.log(topLeft, bottomRight);
-        var viewportWidth = deepZoomMap.width;
+        var viewportWidth = deepZoomMapViewer.map.width;
         var zoom = imageWidth / viewportWidth;
         if (zoom < 1) {
             zoom = 1;
@@ -265,13 +265,13 @@ Map {
         } else {
             previewFadeOutTimer.restart();
         }
-        var currentVisibleRegionRect = deepZoomMap.visibleRegion.boundingGeoRectangle();
-        var currentTopLeft = deepZoomMap.fromCoordinate(currentVisibleRegionRect.topLeft);
-        var currentBottomRight = deepZoomMap.fromCoordinate(currentVisibleRegionRect.bottomRight);
+        var currentVisibleRegionRect = deepZoomMapViewer.map.visibleRegion.boundingGeoRectangle();
+        var currentTopLeft = deepZoomMapViewer.map.fromCoordinate(currentVisibleRegionRect.topLeft);
+        var currentBottomRight = deepZoomMapViewer.map.fromCoordinate(currentVisibleRegionRect.bottomRight);
         var currentWidth = currentBottomRight.x - currentTopLeft.x;
         var currentHeight = currentBottomRight.y - currentTopLeft.y;
-        var originTopLeft = deepZoomMap.fromCoordinate(deepZoomMapOriginRegion.topLeft, false);
-        var originBottomRight = deepZoomMap.fromCoordinate(deepZoomMapOriginRegion.bottomRight, false);
+        var originTopLeft = deepZoomMapViewer.map.fromCoordinate(deepZoomMapOriginRegion.topLeft, false);
+        var originBottomRight = deepZoomMapViewer.map.fromCoordinate(deepZoomMapOriginRegion.bottomRight, false);
         var originWidth = originBottomRight.x - originTopLeft.x;
         var originHeight = originBottomRight.y - originTopLeft.y;
 
