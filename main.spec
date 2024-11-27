@@ -8,11 +8,22 @@ datas = collect_data_files('PySide6')
 import os
 import openslide_bin
 openslide_bin_dir = os.path.dirname(openslide_bin.__file__)
-libopenslide_path = os.path.join(openslide_bin_dir, "libopenslide.so.1")
 
-# Add libopenslide to datas
-if os.path.exists(libopenslide_path):
-    datas += [(libopenslide_path, "openslide_bin/")]
+# Detect libopenslide path
+libopenslide_path = ''
+if os.name == 'nt':
+    #Windows
+    libopenslide_path = os.path.join(openslide_bin_dir, "libopenslide.lib")
+elif os.name == 'posix':
+    if os.uname().sysname == 'Darwin':
+       #macOS
+       libopenslide_path = os.path.join(openslide_bin_dir, "libopenslide.dylib")
+    elif os.uname().sysname == 'Linux':
+        #Linux
+        libopenslide_path = os.path.join(openslide_bin_dir, "libopenslide.so.1")
+
+assert os.path.exists(libopenslide_path)
+datas += [(libopenslide_path, "openslide_bin/")]
 
 # Include additional data files if needed
 datas += [
