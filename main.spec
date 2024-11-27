@@ -17,7 +17,7 @@ if os.name == 'nt':
 elif os.name == 'posix':
     if os.uname().sysname == 'Darwin':
        #macOS
-       libopenslide_path = os.path.join(openslide_bin_dir, "libopenslide.dylib")
+       libopenslide_path = os.path.join(openslide_bin_dir, "libopenslide.1.dylib")
     elif os.uname().sysname == 'Linux':
         #Linux
         libopenslide_path = os.path.join(openslide_bin_dir, "libopenslide.so.1")
