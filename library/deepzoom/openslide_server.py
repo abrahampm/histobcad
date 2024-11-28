@@ -6,10 +6,11 @@ from PIL import Image
 from library.base.tile_server import TileServer
 from library.deepzoom.openslide_utils import _SlideCache
 
-OPENSLIDE_WINDOWS_PATH = r'static\openslide-win64\bin'
+import openslide_bin
+OPENSLIDE_BIN_PATH = os.path.dirname(openslide_bin.__file__)
 if hasattr(os, 'add_dll_directory'):
     # Windows
-    OPENSLIDE_WINDOWS_PATH = os.path.realpath(os.path.join(os.getcwd(), OPENSLIDE_WINDOWS_PATH))
+    OPENSLIDE_WINDOWS_PATH = os.path.realpath(OPENSLIDE_BIN_PATH)
     with os.add_dll_directory(OPENSLIDE_WINDOWS_PATH):
         import openslide
 else:
