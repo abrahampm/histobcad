@@ -5,7 +5,7 @@ import os
 import openslide_bin
 
 openslide_bin_path = os.path.dirname(openslide_bin.__file__)
-binaries = [(os.path.join(openslide_bin_path, file), 'openslide_bin/') for file in os.listdir(openslide_bin_path) if file.endswith('.dll') or file.endswith('.so') or file.endswith('.dylib')]
+binaries = [(os.path.join(openslide_bin_path, file), 'openslide_bin/') for file in os.listdir(openslide_bin_path) if file.endswith('.dll') or file.endswith('.so.1') or file.endswith('.dylib')]
 
 # Include all data and modules from PySide6
 datas = collect_data_files('PySide6')
