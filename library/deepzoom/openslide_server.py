@@ -1,3 +1,4 @@
+import logging
 import os
 from io import BytesIO
 
@@ -31,7 +32,7 @@ class OpenSlideServer(TileServer):
 
     def __get_slide__(self, file_name: str):
         path = os.path.abspath(os.path.join(self._basedir, file_name))
-        print(path, self._basedir)
+        logging.debug("OpenSlideServer - Get slide: %s", os.path.join(self._basedir, path))
         if not path.startswith(self._basedir + os.path.sep):
             # Directory traversal
             raise ValueError('Invalid slide path: {}'.format(path))

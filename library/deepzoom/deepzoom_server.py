@@ -1,3 +1,5 @@
+import logging
+
 import uvicorn
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import Response
@@ -48,12 +50,12 @@ class DeepZoomServer(QObject):
 
     @Slot()
     def run(self):
-        print('Starting deepzoom server')
+        logging.info('Starting deepzoom server')
         self._http_server.run()
 
     @Slot()
     def stop(self):
-        print('Stopping deepzoom server')
+        logging.info('Stopping deepzoom server')
         self._http_server.should_exit = True
 
     def get_base_url(self) -> str:

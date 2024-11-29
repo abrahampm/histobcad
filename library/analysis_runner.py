@@ -1,3 +1,5 @@
+import logging
+
 from PySide6.QtCore import QObject, Signal, Slot
 from PySide6.QtGui import QGuiApplication
 from multiprocessing import Process, Queue
@@ -33,7 +35,7 @@ class AnalysisRunner(QObject):
                     if isinstance(msg, dict):
                         self.msg_from_job.emit(msg)
                         if 'error' in msg:
-                            print(str(msg['error']))
+                            logging.error(str(msg['error']))
                         if 'success' in msg:
                             break
 

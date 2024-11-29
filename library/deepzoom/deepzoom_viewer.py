@@ -1,3 +1,4 @@
+import logging
 import os
 import re
 
@@ -51,8 +52,8 @@ class DeepZoomViewer(QObject):
         self.reload.emit()
         self.set_selected_file_thumbnail()
         self._detect_selected_file_siblings()
-        print("Selected file: ", self._selected_file_url)
-        print("Selected file folder: ", self._selected_file_folder)
+        logging.debug("DeepZoomViewer - Selected file: %s", self._selected_file_url)
+        logging.debug("DeepZoomViewer - Selected file folder: %s", self._selected_file_folder)
 
     @Slot(list)
     def set_selected_file_siblings(self, files):
@@ -76,9 +77,9 @@ class DeepZoomViewer(QObject):
         self._dzi_levels = self._server.get_level_tiles(self._selected_file_name)
         self._dzi_dimensions = self._server.get_level_dimensions(self._selected_file_name)
         self._dzi_meters_per_pixel = self._server.get_meters_per_pixel(self._selected_file_name)
-        print(self._dzi_levels)
-        print(self._dzi_dimensions)
-        print(self._dzi_meters_per_pixel)
+        logging.debug("DeepZoomViewer - Image levels: %s", self._dzi_levels)
+        logging.debug("DeepZoomViewer - Image dimensions: %s", self._dzi_dimensions)
+        logging.debug("DeepZoomViewer - Image mpp: %s", self._dzi_meters_per_pixel)
         self.set_dzi_min_zoom_level()
         self.set_dzi_max_zoom_level()
         self.set_dzi_pixels_per_meter()
@@ -115,7 +116,7 @@ class DeepZoomViewer(QObject):
 
     def set_dzi_pixels_per_meter(self):
         self._dzi_pixels_per_meter = 1e6 / self._dzi_meters_per_pixel if self._dzi_meters_per_pixel > 0 else 0
-        print(self._dzi_pixels_per_meter)
+        logging.debug("DeepZoomViewer - Set image mpp:  %s", self._dzi_pixels_per_meter)
         self.on_dzi_pixels_per_meter.emit()
 
     def get_supported_file_extensions(self):

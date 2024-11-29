@@ -3,6 +3,7 @@
 import os
 import sys
 import requests
+import logging
 from PySide6.QtCore import QThread, Slot
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtQml import QQmlApplicationEngine
@@ -34,6 +35,14 @@ DEEPZOOM_PORT = 8989
 
 if __name__ == '__main__':
     base_path = os.path.dirname(__file__)
+
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        handlers=[
+            logging.StreamHandler(sys.stdout)  # Use sys.stdout explicitly
+        ]
+    )
 
     requests_session = requests.Session()
     requests_thread = QThread()
@@ -111,6 +120,6 @@ if __name__ == '__main__':
     analysis_runner_thread.wait()
     deepzoom_server_thread.quit()
     deepzoom_server_thread.wait()
-    print("Shutting down")
+    logging.info("Shutting down")
     sys.exit(rc)
 
