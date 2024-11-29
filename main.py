@@ -37,8 +37,8 @@ if __name__ == '__main__':
     base_path = os.path.dirname(__file__)
 
     logging.basicConfig(
-        level=logging.DEBUG,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        level=logging.INFO,
+        format="%(levelname)s:  %(message)s",
         handlers=[
             logging.StreamHandler(sys.stdout)  # Use sys.stdout explicitly
         ]
