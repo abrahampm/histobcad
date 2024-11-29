@@ -28,7 +28,7 @@ def update_app_language():
     engine.retranslate()
 
 
-API_URL = "http://histobcad-server.docksal/api"
+API_URL = "http://localhost:8080/api"
 DEEPZOOM_HOST = "localhost"
 DEEPZOOM_PORT = 8989
 
@@ -46,14 +46,14 @@ if __name__ == '__main__':
 
     requests_session = requests.Session()
     requests_thread = QThread()
-    requests_thread.setObjectName("HistoBCAD_Requests")
+    requests_thread.setObjectName("SlideSimple_Requests")
 
     app = QGuiApplication(sys.argv)
     app.instance().thread().setObjectName('SlideSimple')
 
     analysis_manager = AnalysisManager()
     analysis_runner_thread = QThread()
-    analysis_runner_thread.setObjectName("HistoBCAD_Runner")
+    analysis_runner_thread.setObjectName("SlideSimple_Runner")
     analysis_runner = AnalysisRunner(start_signal=analysis_manager.start, stop_signal=analysis_manager.stop)
     analysis_runner.msg_from_job.connect(analysis_manager.receive_message)
     analysis_runner.moveToThread(analysis_runner_thread)
@@ -65,7 +65,7 @@ if __name__ == '__main__':
     analysis_manager.on_output_mask.connect(viewer.set_mask_image)
 
     deepzoom_server_thread = QThread()
-    deepzoom_server_thread.setObjectName("HistoBCAD_DeepZoom")
+    deepzoom_server_thread.setObjectName("SlideSimple_DeepZoom")
     openslide_server = OpenSlideServer(base_path)
     deepzoom_server = DeepZoomServer(DEEPZOOM_HOST, DEEPZOOM_PORT, openslide_server)
     deepzoom_viewer = DeepZoomViewer(server=deepzoom_server)
