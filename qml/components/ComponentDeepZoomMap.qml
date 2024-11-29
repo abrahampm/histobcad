@@ -1,7 +1,6 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Controls.Material
-import QtQuick.Layouts
 import QtLocation
 import QtPositioning
 
@@ -37,6 +36,7 @@ MapView {
     //map.center: QtPositioning.coordinate(90, 180)
     map.activeMapType: map.supportedMapTypes[map.supportedMapTypes.length - 1]
     map.onMapReadyChanged: {
+        map.addMapItem(deepZoomMapOriginRegion);
         fitToViewPort();
         setScaleBar();
 
@@ -216,12 +216,15 @@ MapView {
 
     function setVisibleRegion() {
         previewFadeOutTimer.restart()
-        var origin = deepZoomMapViewer.map.fromCoordinate(deepZoomMapOriginRegion.topLeft, false);
+        var originTopLeft = deepZoomMapViewer.map.fromCoordinate(deepZoomMapOriginRegion.topLeft, false);
+        var originBottomRight = deepZoomMapViewer.map.fromCoordinate(deepZoomMapOriginRegion.bottomRight, false);
+        var originWidth = originBottomRight.x - originTopLeft.x;
+        var originHeight = originBottomRight.y - originTopLeft.y;
         var previewCenterX = deepZoomMapPreviewNavigator.x + deepZoomMapPreviewNavigator.width / 2;
         var previewCenterY = deepZoomMapPreviewNavigator.y + deepZoomMapPreviewNavigator.height / 2;
-        var currentCenterX = deepZoomMapOriginRegion.width * (previewCenterX / deepZoomMapPreview.width);
-        var currentCenterY = deepZoomMapOriginRegion.height * (previewCenterY / deepZoomMapPreview.height);
-        var center = Qt.point(origin.x + currentCenterX, origin.y + currentCenterY);
+        var currentCenterX = originWidth * (previewCenterX / deepZoomMapPreview.width);
+        var currentCenterY = originHeight * (previewCenterY / deepZoomMapPreview.height);
+        var center = Qt.point(originTopLeft.x + currentCenterX, originTopLeft.y + currentCenterY);
 
         deepZoomMapViewer.map.center = deepZoomMapViewer.map.toCoordinate(center, false);
     }
