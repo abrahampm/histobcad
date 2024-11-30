@@ -34,7 +34,7 @@ jobs:
 
       - name: Archive windows artifacts
         if: ${{ matrix.os == 'windows-latest' }}
-        run: tar -cvzf slidesimple-windows.tar.gz dist/SlideSimple.exe
+        run: powershell -Command "& Compress-Archive -Path dist\* -DestinationPath slidesimple-windows.zip"
 
       - name: Archive ubuntu artifacts
         if: ${{ matrix.os == 'ubuntu-latest' }}
@@ -49,7 +49,7 @@ jobs:
         with:
           name: ${{ matrix.os }}-build
           path: |
-            slidesimple-windows.tar.gz
+            slidesimple-windows.zip
             slidesimple-linux.tar.gz
             slidesimple-macos.tar.gz
 
@@ -115,9 +115,9 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: builds/windows-latest/slidesimple-windows.tar.gz
-          asset_name: slidesimple-windows.tar.gz
-          asset_content_type: application/gzip
+          asset_path: builds/windows-latest/slidesimple-windows.zip
+          asset_name: slidesimple-windows.zip
+          asset_content_type: application/zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
