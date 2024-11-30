@@ -5,6 +5,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import Response
 from PySide6.QtCore import QObject, Slot
 from library.base.tile_server import TileServer
+from library.config import UVICORN_LOG_CONFIG
 
 
 class DeepZoomServer(QObject):
@@ -17,7 +18,7 @@ class DeepZoomServer(QObject):
         self._tile_server = tile_server
         # Create and configure app
         self._app = FastAPI()
-        self._app_config = uvicorn.Config(app=self._app, host=self._host, port=self._port)
+        self._app_config = uvicorn.Config(app=self._app, host=self._host, port=self._port, log_config=UVICORN_LOG_CONFIG)
         self._http_server = uvicorn.Server(self._app_config)
         self.__register_routes__()
 
