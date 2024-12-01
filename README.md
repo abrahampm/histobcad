@@ -1,5 +1,5 @@
 
-# DeepZoom Histopathology Viewer
+# HistoBCAD
 
 **HistoBCAD** is an open-source tool for visualizing and processing multi-level histopathology images. It leverages the [OpenSlide](https://openslide.org/) library for loading whole-slide images and utilizes the **Qt QML Map API** for efficient, tile-based visualization. The application also integrates machine learning-based image analysis tools and includes preliminary server-side functionality for user management and diagnostics.
 
