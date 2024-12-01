@@ -28,7 +28,7 @@ def update_app_language():
     engine.retranslate()
 
 
-API_URL = "http://localhost:8080/api"
+API_URL = "https://slidesimple.io/api/v1"
 DEEPZOOM_HOST = "localhost"
 DEEPZOOM_PORT = 8989
 
