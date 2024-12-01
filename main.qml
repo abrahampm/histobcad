@@ -8,7 +8,7 @@ import "qml/components" as Components
 
 ApplicationWindow {
     id: applicationWindow
-    title: qsTr("HistoBCAD")
+    title: qsTr("SlideSimple")
     visible: true
     width: 1024
     height: 576
@@ -104,7 +104,7 @@ ApplicationWindow {
             title: qsTr("Help")
             Action { text: qsTr("User manual")}
             Action {
-                text: qsTr("About HistoBCAD")
+                text: qsTr("About SlideSimple")
                 onTriggered: aboutDialog.open()
             }
             Action {
