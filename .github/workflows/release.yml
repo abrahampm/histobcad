@@ -34,24 +34,24 @@ jobs:
 
       - name: Archive windows artifacts
         if: ${{ matrix.os == 'windows-latest' }}
-        run: tar -cvzf slidesimple-windows.tar.gz dist/SlideSimple.exe
+        run: tar -cvzf histobcad-windows.tar.gz dist/HistoBCAD.exe
 
       - name: Archive ubuntu artifacts
         if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: tar -cvzf slidesimple-linux.tar.gz dist/SlideSimple
+        run: tar -cvzf histobcad-linux.tar.gz dist/HistoBCAD
 
       - name: Archive macos artifacts
         if: ${{ matrix.os == 'macos-latest' }}
-        run: tar -cvzf slidesimple-macos.tar.gz dist/SlideSimple
+        run: tar -cvzf histobcad-macos.tar.gz dist/HistoBCAD
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.os }}-build
           path: |
-            slidesimple-windows.tar.gz
-            slidesimple-linux.tar.gz
-            slidesimple-macos.tar.gz
+            histobcad-windows.tar.gz
+            histobcad-linux.tar.gz
+            histobcad-macos.tar.gz
 
   release:
     runs-on: ubuntu-latest
@@ -107,8 +107,8 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: builds/ubuntu-latest/slidesimple-linux.tar.gz
-          asset_name: slidesimple-linux.tar.gz
+          asset_path: builds/ubuntu-latest/histobcad-linux.tar.gz
+          asset_name: histobcad-linux.tar.gz
           asset_content_type: application/gzip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -117,8 +117,8 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: builds/windows-latest/slidesimple-windows.tar.gz
-          asset_name: slidesimple-windows.tar.gz
+          asset_path: builds/windows-latest/histobcad-windows.tar.gz
+          asset_name: histobcad-windows.tar.gz
           asset_content_type: application/gzip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -127,8 +127,8 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: builds/macos-latest/slidesimple-macos.tar.gz
-          asset_name: slidesimple-macos.tar.gz
+          asset_path: builds/macos-latest/histobcad-macos.tar.gz
+          asset_name: histobcad-macos.tar.gz
           asset_content_type: application/gzip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

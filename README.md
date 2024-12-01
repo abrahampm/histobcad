@@ -1,7 +1,7 @@
 
 # DeepZoom Histopathology Viewer
 
-**SlideSimple** is an open-source tool for visualizing and processing multi-level histopathology images. It leverages the [OpenSlide](https://openslide.org/) library for loading whole-slide images and utilizes the **Qt QML Map API** for efficient, tile-based visualization. The application also integrates machine learning-based image analysis tools and includes preliminary server-side functionality for user management and diagnostics.
+**HistoBCAD** is an open-source tool for visualizing and processing multi-level histopathology images. It leverages the [OpenSlide](https://openslide.org/) library for loading whole-slide images and utilizes the **Qt QML Map API** for efficient, tile-based visualization. The application also integrates machine learning-based image analysis tools and includes preliminary server-side functionality for user management and diagnostics.
 
 ## Screenshots
 
@@ -26,8 +26,8 @@
 ### Steps
 1. Clone the repository:
    ```bash
-   git clone https://github.com/abrahampm/slidesimple.git
-   cd slidesimple
+   git clone https://github.com/abrahampm/histobcad.git
+   cd histobcad
    ```
 
 2. Install dependencies:
@@ -78,8 +78,8 @@ This project is licensed under the [MIT License](LICENSE).
 ## Community
 
 If you have questions, suggestions, or feature requests, please reach out:
-- **GitHub Discussions**: Join the conversation [here](https://github.com/abrahampm/slidesimple/discussions).
-- **Issues**: Report bugs or request features via [GitHub Issues](https://github.com/abrahampm/slidesimple/issues).
+- **GitHub Discussions**: Join the conversation [here](https://github.com/abrahampm/histobcad/discussions).
+- **Issues**: Report bugs or request features via [GitHub Issues](https://github.com/abrahampm/histobcad/issues).
 
 ---
 

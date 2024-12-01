@@ -43,7 +43,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='SlideSimple',
+    name='HistoBCAD',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
